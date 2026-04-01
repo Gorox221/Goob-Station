@@ -23,7 +23,6 @@ using Content.Shared.CCVar;
 using Content.Shared.GameTicking;
 using Robust.Server.ServerStatus;
 using Robust.Shared.Configuration;
-using Content.Corvax.Interfaces.Server; // CorvaxGoob - Queue
 
 namespace Content.Server.GameTicking
 {
@@ -62,15 +61,11 @@ namespace Content.Server.GameTicking
             // This method is raised from another thread, so this better be thread safe!
             lock (_statusShellLock)
             {
-                // CorvaxGoob-Queue-Start
-                var players = IoCManager.Instance?.TryResolveType<IServerJoinQueueManager>(out var joinQueueManager) ?? false
-                    ? joinQueueManager.ActualPlayersCount
-                    : _playerManager.PlayerCount;
+                var players = _playerManager.PlayerCount;
 
                 players = _cfg.GetCVar(CCVars.AdminsCountInReportedPlayerCount)
                     ? players
                     : players - _adminManager.ActiveAdmins.Count();
-                // CorvaxGoob-Queue-End
                 jObject["name"] = _baseServer.ServerName;
                 jObject["map"] = _gameMapManager.GetSelectedMap()?.MapName;
                 jObject["round_id"] = _gameTicker.RoundId;

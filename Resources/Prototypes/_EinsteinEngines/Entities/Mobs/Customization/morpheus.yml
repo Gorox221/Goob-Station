@@ -11,7 +11,6 @@
   bodyPart: Head
   markingCategory: Head
   speciesRestriction: [IPC]
-  sponsorOnly: true # CorvaxGoob-Sponsors
   coloring:
     default:
       type:
@@ -26,7 +25,6 @@
   bodyPart: Head
   markingCategory: Head
   speciesRestriction: [IPC]
-  sponsorOnly: true # CorvaxGoob-Sponsors
   coloring:
     default:
       type:
@@ -41,7 +39,6 @@
   bodyPart: Chest
   markingCategory: Chest
   speciesRestriction: [IPC]
-  sponsorOnly: true # CorvaxGoob-Sponsors
   coloring:
     default:
       type:
@@ -56,7 +53,6 @@
   bodyPart: LArm
   markingCategory: LeftArm
   speciesRestriction: [IPC]
-  sponsorOnly: true # CorvaxGoob-Sponsors
   coloring:
     default:
       type:
@@ -71,7 +67,6 @@
   bodyPart: LHand
   markingCategory: LeftHand
   speciesRestriction: [IPC]
-  sponsorOnly: true # CorvaxGoob-Sponsors
   coloring:
     default:
       type:
@@ -86,7 +81,6 @@
   bodyPart: LLeg
   markingCategory: LeftLeg
   speciesRestriction: [IPC]
-  sponsorOnly: true # CorvaxGoob-Sponsors
   coloring:
     default:
       type:
@@ -102,7 +96,6 @@
   bodyPart: LFoot
   markingCategory: LeftFoot
   speciesRestriction: [IPC]
-  sponsorOnly: true # CorvaxGoob-Sponsors
   coloring:
     default:
       type:
@@ -119,7 +112,6 @@
   bodyPart: RArm
   markingCategory: RightArm
   speciesRestriction: [IPC]
-  sponsorOnly: true # CorvaxGoob-Sponsors
   coloring:
     default:
       type:
@@ -135,7 +127,6 @@
   bodyPart: RHand
   markingCategory: RightHand
   speciesRestriction: [IPC]
-  sponsorOnly: true # CorvaxGoob-Sponsors
   coloring:
     default:
       type:
@@ -150,7 +141,6 @@
   bodyPart: RLeg
   markingCategory: RightLeg
   speciesRestriction: [IPC]
-  sponsorOnly: true # CorvaxGoob-Sponsors
   coloring:
     default:
       type:
@@ -166,7 +156,6 @@
   bodyPart: RFoot
   markingCategory: RightFoot
   speciesRestriction: [IPC]
-  sponsorOnly: true # CorvaxGoob-Sponsors
   coloring:
     default:
       type:

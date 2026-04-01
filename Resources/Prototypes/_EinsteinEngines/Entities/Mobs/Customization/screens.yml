@@ -10,7 +10,6 @@
   id: ScreenStatic
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_static
@@ -21,7 +20,6 @@
   id: ScreenBlue
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_blue
@@ -32,7 +30,6 @@
   id: ScreenBreakout
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_breakout
@@ -43,7 +40,6 @@
   id: ScreenEight
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_eight
@@ -54,7 +50,6 @@
   id: ScreenGoggles
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_goggles
@@ -65,7 +60,6 @@
   id: ScreenExclaim
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_exclaim
@@ -76,7 +70,6 @@
   id: ScreenHeart
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_heart
@@ -87,7 +80,6 @@
   id: ScreenMonoeye
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_monoeye
@@ -98,7 +90,6 @@
   id: ScreenNature
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_nature
@@ -109,7 +100,6 @@
   id: ScreenOrange
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_orange
@@ -120,7 +110,6 @@
   id: ScreenPink
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_pink
@@ -131,7 +120,6 @@
   id: ScreenQuestion
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_question
@@ -142,7 +130,6 @@
   id: ScreenShower
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_shower
@@ -153,7 +140,6 @@
   id: ScreenYellow
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_yellow
@@ -164,7 +150,6 @@
   id: ScreenScroll
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_scroll
@@ -175,7 +160,6 @@
   id: ScreenConsole
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_console
@@ -186,7 +170,6 @@
   id: ScreenRgb
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_rgb
@@ -197,7 +180,6 @@
   id: ScreenGlider
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_glider
@@ -208,7 +190,6 @@
   id: ScreenRainbowhoriz
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_rainbowhoriz
@@ -219,7 +200,6 @@
   id: ScreenBsod
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_bsod
@@ -230,7 +210,6 @@
   id: ScreenRedtext
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_redtext
@@ -241,7 +220,6 @@
   id: ScreenSinewave
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_sinewave
@@ -252,7 +230,6 @@
   id: ScreenSquarewave
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_squarewave
@@ -263,7 +240,6 @@
   id: ScreenEcgwave
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_ecgwave
@@ -274,7 +250,6 @@
   id: ScreenEyes
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_eyes
@@ -285,7 +260,6 @@
   id: ScreenEyestall
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_eyestall
@@ -296,7 +270,6 @@
   id: ScreenEyesangry
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_eyesangry
@@ -307,7 +280,6 @@
   id: ScreenLoading
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_loading
@@ -318,7 +290,6 @@
   id: ScreenWindowsxp
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_windowsxp
@@ -329,7 +300,6 @@
   id: ScreenTetris
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_tetris
@@ -340,7 +310,6 @@
   id: ScreenTv
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_tv
@@ -351,7 +320,6 @@
   id: ScreenTextdrop
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_textdrop
@@ -362,7 +330,6 @@
   id: ScreenStars
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_stars
@@ -373,7 +340,6 @@
   id: ScreenRainbowdiag
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_rainbowdiag
@@ -384,7 +350,6 @@
   id: ScreenBlank
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_blank
@@ -395,7 +360,6 @@
   id: ScreenSmile
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_smile
@@ -405,7 +369,6 @@
   id: ScreenFrown
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_frown
@@ -416,7 +379,6 @@
   id: ScreenRing
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_ring
@@ -427,7 +389,6 @@
   id: ScreenL
   bodyPart: Face
   markingCategory: Face
-  sponsorOnly: true # CorvaxGoob-Sponsors
   sprites:
     - sprite: _EinsteinEngines/Mobs/Customization/ipc_screens.rsi
       state: ipc_screen_l

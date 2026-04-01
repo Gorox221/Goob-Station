@@ -125,13 +125,7 @@ using Robust.Shared.Prototypes;
 using Robust.Shared.Player;
 using Robust.Shared.Timing;
 using Content.Goobstation.Common.CCVar;
-using Content.Corvax.Interfaces.Shared;
-using Content.Corvax.Interfaces.Server;
-using Content.Shared._CorvaxGoob.CCCVars; // CorvaxGoob - Queue
-
-/*
- * TODO: Remove baby jail code once a more mature gateway process is established. This code is only being issued as a stopgap to help with potential tiding in the immediate future.
- */
+using Content.Shared._CorvaxGoob.CCCVars;
 
 namespace Content.Server.Connection
 {
@@ -172,10 +166,8 @@ namespace Content.Server.Connection
         [Dependency] private readonly IChatManager _chatManager = default!;
         [Dependency] private readonly IHttpClientHolder _http = default!;
         [Dependency] private readonly IAdminManager _adminManager = default!;
-        private ISharedSponsorsManager? _sponsorsMgr; // CorvaxGoob-Sponsors
-        private IServerVPNGuardManager? _vpnGuardMgr; // Corvax-VPNGuard
 
-        private GameTicker? _ticker; // CorvaxGoob-Queue
+        private GameTicker? _ticker;
         private ISawmill _sawmill = default!;
         private readonly Dictionary<NetUserId, TimeSpan> _temporaryBypasses = [];
         private IPIntel.IPIntel _ipintel = default!;
@@ -190,8 +182,6 @@ namespace Content.Server.Connection
             _sawmill = _logManager.GetSawmill("connections");
 
             _ipintel = new IPIntel.IPIntel(new IPIntelApi(_http, _cfg), _db, _cfg, _logManager, _chatManager, _gameTiming);
-
-            IoCManager.Instance!.TryResolveType(out _sponsorsMgr); // CorvaxGoob-Sponsors
 
             _netMgr.Connecting += NetMgrOnConnecting;
             _netMgr.AssignUserIdCallback = AssignUserIdCallback;
@@ -400,24 +390,7 @@ namespace Content.Server.Connection
                             ("reason", Loc.GetString("panic-bunker-account-reason-overall", ("minutes", minOverallMinutes)))), null);
                 }
 
-                // CorvaxGoob-VPNGuard-Start
-                if (_vpnGuardMgr == null) // "lazyload" because of problems with dependency resolve order
-                    IoCManager.Instance!.TryResolveType(out _vpnGuardMgr);
-
-                var denyVpn = false;
-                if (_cfg.GetCVar(CCCVars.PanicBunkerDenyVPN) && _vpnGuardMgr is not null)
-                {
-                    denyVpn = await _vpnGuardMgr!.IsConnectionVpn(e.IP.Address);
-                    if (denyVpn)
-                    {
-                        return (ConnectionDenyReason.Panic,
-                            Loc.GetString("panic-bunker-account-denied-reason",
-                                ("reason", Loc.GetString("panic-bunker-account-reason-vpn"))), null);
-                    }
-                }
-                // CorvaxGoob-VPNGuard-End
-
-                if (!validAccountAge || !haveMinOverallTime || denyVpn) // Corvax-VPNGuard
+                if (!validAccountAge || !haveMinOverallTime)
                 {
                     return (ConnectionDenyReason.Panic, Loc.GetString("panic-bunker-account-denied"), null);
                 }
@@ -431,7 +404,7 @@ namespace Content.Server.Connection
             // CorvaxGoob-Queue-End
 
             // var isPrivileged = await HasPrivilegedJoin(userId); // Goobstation - Queue. Commented by CorvaxGoob
-            var isQueueEnabled = IoCManager.Instance!.TryResolveType<IServerJoinQueueManager>(out var mgr) && mgr.IsEnabled;
+            var isQueueEnabled = false;
             var softPlayerCount = _plyMgr.PlayerCount;
 
             if (!_cfg.GetCVar(CCVars.AdminsCountForMaxPlayers))
@@ -527,13 +500,10 @@ namespace Content.Server.Connection
         public async Task<bool> HavePrivilegedJoin(NetUserId userId)
         {
             var adminBypass = _cfg.GetCVar(CCVars.AdminBypassMaxPlayers) && await _db.GetAdminDataForAsync(userId) != null;
-            var havePriorityJoin = _sponsorsMgr != null && _sponsorsMgr.HaveServerPriorityJoin(userId); // CorvaxGoob-Sponsors
             var wasInGame = EntitySystem.TryGet<GameTicker>(out var ticker) &&
                             ticker.PlayerGameStatuses.TryGetValue(userId, out var status) &&
                             status == PlayerGameStatus.JoinedGame;
-            return adminBypass ||
-                   havePriorityJoin || // CorvaxGoob-Sponsors
-                   wasInGame;
+            return adminBypass || wasInGame;
         }
         // CorvaxGoob-Queue-End
     }

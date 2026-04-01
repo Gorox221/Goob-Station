@@ -11,7 +11,6 @@
 // SPDX-License-Identifier: MIT
 
 using System.Linq;
-using Content.Corvax.Interfaces.Shared;
 using Content.Shared._CorvaxGoob;
 using Content.Shared.Humanoid;
 using Content.Shared.Humanoid.Markings;
@@ -34,7 +33,6 @@ public sealed partial class MarkingPicker : Control
     [Dependency] private readonly MarkingManager _markingManager = default!;
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     [Dependency] private readonly IEntityManager _entityManager = default!;
-    private ISharedSponsorsManager? _sponsorsManager; // CorvaxGoob-Sponsors
 
     private readonly SpriteSystem _sprite;
 
@@ -142,7 +140,6 @@ public sealed partial class MarkingPicker : Control
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
-        IoCManager.Instance!.TryResolveType(out _sponsorsManager); // CorvaxGoob-Sponsors
 
         _sprite = _entityManager.System<SpriteSystem>();
 
@@ -250,8 +247,6 @@ public sealed partial class MarkingPicker : Control
             // Corvax-Sponsors-End
             item.Metadata = marking;
             // CorvaxGoob-Sponsors-Start
-            if (marking.SponsorOnly && _sponsorsManager != null)
-                item.Disabled = !_sponsorsManager.GetClientPrototypes().Contains(marking.ID);
             // CorvaxGoob-Sponsors-End
         }
 
