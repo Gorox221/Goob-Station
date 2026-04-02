@@ -573,6 +573,11 @@ public sealed class ArrivalsSystem : EntitySystem
 
     private void OnRoundStarting(RoundStartingEvent ev)
     {
+        // _Shiptest-Start: Disable arrivals terminal
+        // Setup arrivals station - DISABLED for empty space mode
+        return;
+        // _Shiptest-End
+
         // Setup arrivals station
         if (!Enabled)
             return;

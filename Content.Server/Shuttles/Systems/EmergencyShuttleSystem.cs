@@ -476,6 +476,11 @@ public sealed partial class EmergencyShuttleSystem : EntitySystem
 
     private void OnStationInit(EntityUid uid, StationCentcommComponent component, MapInitEvent args)
     {
+        // _Shiptest-Start: Disable CentCom spawning
+        // CentCom is disabled in empty space mode
+        return;
+        // _Shiptest-End
+
         // This is handled on map-init, so that centcomm has finished initializing by the time the StationPostInitEvent
         // gets raised
         if (!_emergencyShuttleEnabled)
