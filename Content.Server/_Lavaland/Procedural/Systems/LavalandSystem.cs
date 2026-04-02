@@ -72,6 +72,9 @@ public sealed partial class LavalandSystem : EntitySystem
     {
         base.Initialize();
 
+        // _Shiptest: Disable Lavaland spawning
+        return;
+
         SubscribeLocalEvent<LoadingMapsEvent>(OnLoadingMaps);
         SubscribeLocalEvent<RoundRestartCleanupEvent>(OnRoundRestart);
         SubscribeLocalEvent<MobStateComponent, EntParentChangedMessage>(OnPlayerParentChange);

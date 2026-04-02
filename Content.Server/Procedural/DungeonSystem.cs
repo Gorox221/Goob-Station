@@ -134,6 +134,9 @@ public sealed partial class DungeonSystem : SharedDungeonSystem
 
     private void OnRoundStart(RoundStartingEvent ev)
     {
+        // _Shiptest: Disable Lavaland/procedural dungeon spawning
+        return;
+
         var query = AllEntityQuery<DungeonAtlasTemplateComponent>();
 
         while (query.MoveNext(out var uid, out _))
