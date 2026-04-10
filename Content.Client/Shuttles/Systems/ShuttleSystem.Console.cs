@@ -9,6 +9,7 @@
 using Content.Client.Resources;
 using Content.Shared.Shuttles.Components;
 using Content.Shared.Shuttles.UI.MapObjects;
+using Content.Shared._Shiptest.SpaceBiomes;
 using Robust.Client.Graphics;
 using Robust.Client.ResourceManagement;
 using Robust.Shared.Map;
@@ -45,6 +46,8 @@ public sealed partial class ShuttleSystem
                 return XformSystem.ToMapCoordinates(GetCoordinates(beacon.Coordinates));
             case ShuttleExclusionObject exclusion:
                 return XformSystem.ToMapCoordinates(GetCoordinates(exclusion.Coordinates));
+            case BiomeZoneObject biome:
+                return XformSystem.ToMapCoordinates(GetCoordinates(biome.Coordinates));
             case GridMapObject grid:
                 var gridXform = Transform(grid.Entity);
 

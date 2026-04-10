@@ -130,11 +130,15 @@ using Content.Shared.Movement.Systems;
 using Content.Shared.Power;
 using Content.Shared.Shuttles.UI.MapObjects;
 using Content.Shared.Timing;
+using Content.Shared._Shiptest.SpaceBiomes;
 using Robust.Server.GameObjects;
+using System.Numerics;
 using Robust.Shared.Collections;
 using Robust.Shared.GameStates;
 using Robust.Shared.Map;
+using Robust.Shared.Maths;
 using Robust.Shared.Utility;
+using System.Linq;
 using Content.Shared.UserInterface;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
@@ -151,6 +155,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
     [Dependency] private readonly SharedTransformSystem _transform = default!;
     [Dependency] private readonly ShuttleSystem _shuttle = default!;
     [Dependency] private readonly StationSystem _station = default!;
+    [Dependency] private readonly IPrototypeManager _protMan = default!;
     [Dependency] private readonly TagSystem _tags = default!;
     [Dependency] private readonly UserInterfaceSystem _ui = default!;
     [Dependency] private readonly SharedContentEyeSystem _eyeSystem = default!;
@@ -535,12 +540,128 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
         if (!Resolve(entity, ref entity.Comp1, ref entity.Comp2, false))
             return new NavInterfaceState(SharedRadarConsoleSystem.DefaultMaxRange, GetNetCoordinates(coordinates), angle, docks, InertiaDampeningMode.Dampen);
 
+        // CorvaxGoob: collect biome zone data for radar display
+        GetBiomeZoneDataForNav(
+            coordinates,
+            out var biomeLines,
+            out var biomeCoords,
+            out var biomeColors);
+
         return new NavInterfaceState(
             entity.Comp1.MaxRange,
             GetNetCoordinates(coordinates),
             angle,
             docks,
-            _shuttle.NfGetInertiaDampeningMode(entity)); // Frontier
+            _shuttle.NfGetInertiaDampeningMode(entity), // Frontier
+            biomeZoneLines: biomeLines,
+            biomeZoneCoords: biomeCoords,
+            biomeZoneColors: biomeColors);
+    }
+
+    /// <summary>
+    /// CorvaxGoob: Collects biome zone boundary lines and world coordinates for nav/radar display.
+    /// Generates line segments from the irregular boundary shape stored on each biome source.
+    /// </summary>
+    private void GetBiomeZoneDataForNav(
+        EntityCoordinates referenceCoords,
+        out Vector2[][] lines,
+        out NetCoordinates[] coords,
+        out Color[] colors)
+    {
+        var refMapPos = _transform.ToMapCoordinates(referenceCoords);
+        var refMapId = refMapPos.MapId;
+        var linesList = new List<Vector2[]>();
+        var coordsList = new List<NetCoordinates>();
+        var colorsList = new List<Color>();
+
+        const int BoundaryResolution = 32;
+
+        var query = EntityQueryEnumerator<SpaceBiomeSourceComponent, TransformComponent>();
+        while (query.MoveNext(out var uid, out var source, out var xform))
+        {
+            // Skip biomes on different maps
+            if (xform.MapID != refMapId)
+                continue;
+
+            if (!_protMan.TryIndex<SpaceBiomePrototype>(source.Biome, out var biomeProto))
+                continue;
+            if (biomeProto.MapColor == Color.Transparent)
+                continue;
+
+            var biomeMapPos = _transform.ToMapCoordinates(xform.Coordinates);
+            var offset = biomeMapPos.Position - refMapPos.Position;
+
+            // Only send biomes within a reasonable range
+            if (offset.Length() > source.SwapDistance * 3f)
+                continue;
+
+            // Generate boundary line segments from the biome's shape
+            var boundaryLines = GenerateBiomeBoundaryLines(source, BoundaryResolution);
+            linesList.Add(boundaryLines);
+            coordsList.Add(GetNetCoordinates(xform.Coordinates));
+            colorsList.Add(biomeProto.MapColor);
+        }
+
+        lines = linesList.ToArray();
+        coords = coordsList.ToArray();
+        colors = colorsList.ToArray();
+    }
+
+    /// <summary>
+    /// Generates line segments forming the irregular boundary of a biome zone.
+    /// Returns a flat array of Vector2 pairs: [start0, end0, start1, end1, ...]
+    /// Each line is relative to the biome center.
+    /// </summary>
+    private static Vector2[] GenerateBiomeBoundaryLines(SpaceBiomeSourceComponent source, int resolution)
+    {
+        var angleStep = MathF.Tau / resolution;
+        var lineCount = resolution;
+        var lines = new Vector2[lineCount * 2];
+
+        for (var i = 0; i < resolution; i++)
+        {
+            var angle0 = i * angleStep;
+            var angle1 = (i + 1) * angleStep;
+
+            var r0 = GetBoundaryRadiusAtAngle(source, angle0);
+            var r1 = GetBoundaryRadiusAtAngle(source, angle1);
+
+            var p0 = new Vector2(MathF.Cos(angle0) * r0, MathF.Sin(angle0) * r0);
+            var p1 = new Vector2(MathF.Cos(angle1) * r1, MathF.Sin(angle1) * r1);
+
+            lines[i * 2] = p0;
+            lines[i * 2 + 1] = p1;
+        }
+
+        return lines;
+    }
+
+    /// <summary>
+    /// Gets the boundary radius at a specific angle by interpolating between stored points.
+    /// </summary>
+    private static float GetBoundaryRadiusAtAngle(SpaceBiomeSourceComponent source, float angle)
+    {
+        if (source.BoundaryPoints.Length == 0)
+            return source.SwapDistance;
+
+        // Normalize angle to 0..2pi
+        while (angle < 0) angle += MathF.Tau;
+        while (angle >= MathF.Tau) angle -= MathF.Tau;
+
+        var resolution = source.BoundaryResolution;
+        var angleStep = MathF.Tau / resolution;
+        var indexFloat = angle / angleStep;
+        var i0 = (int)MathF.Floor(indexFloat) % resolution;
+        var i1 = (i0 + 1) % resolution;
+        var t = indexFloat - MathF.Floor(indexFloat);
+
+        // Smoothstep interpolation
+        t = t * t * (3 - 2 * t);
+
+        var r0 = source.BoundaryPoints[i0] * source.SwapDistance;
+        var r1 = source.BoundaryPoints[i1] * source.SwapDistance;
+
+        return r0 * (1 - t) + r1 * t;
     }
 
     /// <summary>
@@ -556,12 +677,17 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
     /// <summary>
     /// Specific to a particular shuttle.
     /// </summary>
-    public ShuttleMapInterfaceState GetMapState(Entity<FTLComponent?> shuttle)
+    public ShuttleMapInterfaceState GetMapState(EntityUid shuttleGridUid)
     {
         FTLState ftlState = FTLState.Available;
         StartEndTime stateDuration = default;
 
-        if (Resolve(shuttle, ref shuttle.Comp, false) && shuttle.Comp.LifeStage < ComponentLifeStage.Stopped)
+        // Get the shuttle's FTL component if it exists
+        Entity<FTLComponent?> shuttle = (shuttleGridUid, null);
+        if (TryComp<FTLComponent>(shuttleGridUid, out var ftlComp))
+            shuttle = (shuttleGridUid, ftlComp);
+
+        if (shuttle.Comp != null && shuttle.Comp.LifeStage < ComponentLifeStage.Stopped)
         {
             ftlState = shuttle.Comp.State;
             stateDuration = _shuttle.GetStateTime(shuttle.Comp);
@@ -569,13 +695,61 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
 
         List<ShuttleBeaconObject>? beacons = null;
         List<ShuttleExclusionObject>? exclusions = null;
+        List<BiomeZoneObject>? biomeZones = null;
         GetBeacons(ref beacons);
         GetExclusions(ref exclusions);
+
+        // CorvaxGoob: Get shuttle grid's map ID for biome filtering
+        MapId? shuttleMapId = null;
+        if (TryComp<TransformComponent>(shuttleGridUid, out var gridXform))
+            shuttleMapId = gridXform.MapID;
+        GetBiomeZones(ref biomeZones, shuttleMapId);
 
         return new ShuttleMapInterfaceState(
             ftlState,
             stateDuration,
             beacons ?? new List<ShuttleBeaconObject>(),
-            exclusions ?? new List<ShuttleExclusionObject>());
+            exclusions ?? new List<ShuttleExclusionObject>(),
+            biomeZones);
+    }
+
+    /// <summary>
+    /// CorvaxGoob: Collects all active space biome zones for map display.
+    /// Generates boundary line segments for each biome source.
+    /// Only includes biomes on the same map as the shuttle.
+    /// </summary>
+    private void GetBiomeZones(ref List<BiomeZoneObject>? biomeZones, MapId? shuttleMapId = null)
+    {
+        const int BoundaryResolution = 32;
+
+        var query = EntityQueryEnumerator<SpaceBiomeSourceComponent, TransformComponent>();
+        while (query.MoveNext(out var uid, out var source, out var xform))
+        {
+            // Skip biomes on different maps
+            if (shuttleMapId.HasValue && xform.MapID != shuttleMapId.Value)
+                continue;
+
+            if (!_protMan.TryIndex<SpaceBiomePrototype>(source.Biome, out var biomeProto))
+                continue;
+
+            // Skip default/empty biome zones
+            if (biomeProto.MapColor == Color.Transparent)
+                continue;
+
+            var netCoords = GetNetCoordinates(xform.Coordinates);
+            var avgRadius = source.SwapDistance;
+
+            // Generate boundary line segments
+            var boundaryLines = GenerateBiomeBoundaryLines(source, BoundaryResolution);
+
+            biomeZones ??= new List<BiomeZoneObject>();
+            biomeZones.Add(new BiomeZoneObject(
+                netCoords,
+                boundaryLines,
+                avgRadius,
+                source.Biome,
+                biomeProto.Name,
+                biomeProto.MapColor));
+        }
     }
 }

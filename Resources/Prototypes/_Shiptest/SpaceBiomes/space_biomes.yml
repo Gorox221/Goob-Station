@@ -1,0 +1,118 @@
+# Space biome prototypes for CorvaxGoob
+# Biomes define parallax presets, display names, transition durations, and map colors.
+# Entities with SpaceBiomeSourceComponent reference these biome IDs.
+
+# Default deep space biome (no map color — invisible on console)
+- type: spaceFactionBiome
+  id: DefaultSpace
+  parallax: Default
+  name: "Глубокий Космос"
+  description: "Бескрайняя пустота между звёзд"
+  swapDuration: 3
+  mapColor: "#00000000"
+  spawns:
+    - entity: NukeDisk
+      interval: 300
+      enabled: false
+
+# Asteroid belt biome — amber/orange
+- type: spaceFactionBiome
+  id: AsteroidBelt
+  parallax: Default
+  name: "Пояс Астероидов"
+  description: "Каменные глыбы дрейфуют в тишине"
+  swapDuration: 2
+  mapColor: "#CC8833"
+  spawns:
+    - entity: NukeDisk
+      interval: 150
+      enabled: true
+
+# Debris field biome — dim gray
+- type: spaceFactionBiome
+  id: DebrisField
+  parallax: Venus
+  name: "Электрический шторм"
+  description: "Вызывает удары, подобные Тесле, в случайных частях вашего корабля. "
+  swapDuration: 2
+  mapColor: "#fdf907"
+  spawns:
+    - entity: InvisibleTesla
+      interval: 3
+      enabled: true
+
+# Anomalous space biome — eerie purple
+- type: spaceFactionBiome
+  id: AnomalousSpace
+  parallax: Default
+  name: "Аномальный Сектор"
+  description: "Пространство, искажённое неизвестными силами"
+  swapDuration: 4
+  mapColor: "#9944CC"
+  spawns:
+    - entity: NukeDisk
+      interval: 75
+      enabled: true
+
+---
+# Entity prototypes for biome sources
+# These are spawned by SpaceBiomeSpawnerSystem with randomized positions and sizes.
+# SwapDistance and Priority are overridden at spawn time.
+
+- type: entity
+  id: SpaceBiomeSourceDefault
+  name: space biome source
+  components:
+    - type: SpaceBiomeSource
+      biome: DefaultSpace
+      swapDistance: 400
+      priority: 0
+
+- type: entity
+  id: SpaceBiomeSourceAsteroidBelt
+  name: asteroid belt biome source
+  components:
+    - type: SpaceBiomeSource
+      biome: AsteroidBelt
+      swapDistance: 400
+      priority: 0
+
+- type: entity
+  id: SpaceBiomeSourceDebrisField
+  name: debris field biome source
+  components:
+    - type: SpaceBiomeSource
+      biome: DebrisField
+      swapDistance: 400
+      priority: 0
+
+- type: entity
+  id: SpaceBiomeSourceAnomalousSpace
+  name: anomalous space biome source
+  components:
+    - type: SpaceBiomeSource
+      biome: AnomalousSpace
+      swapDistance: 400
+      priority: 0
+
+# 
+# 
+# 
+
+- type: entity
+  id: InvisibleTesla
+  name: invisible tesla
+  description: An invisible source of lightning. Visible in the spawn menu.
+  components:
+  - type: Physics
+    bodyType: Static
+    canCollide: false
+  - type: LightningArcShooter
+    arcDepth: 2
+    maxLightningArc: 8
+    shootMinInterval: 10
+    shootMaxInterval: 15
+    shootRange: 60
+    lightningPrototype: Lightning
+  - type: TimedDespawn
+    lifetime: 40

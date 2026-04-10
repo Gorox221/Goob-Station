@@ -4,8 +4,11 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+using System.Numerics;
 using Robust.Shared.Map;
+using Robust.Shared.Maths;
 using Robust.Shared.Serialization;
+using Content.Shared._Shiptest.SpaceBiomes;
 using Content.Shared._NF.Shuttles.Events;
 
 namespace Content.Shared.Shuttles.BUIStates;
@@ -28,6 +31,15 @@ public sealed class NavInterfaceState
     public Dictionary<NetEntity, List<DockingPortState>> Docks;
 
     public bool RotateWithEntity = true;
+
+    /// <summary>
+    /// CorvaxGoob: Space biome zones for display on radar/mass scanner.
+    /// Each biome is a set of line segments (pairs of Vector2) relative to the biome center.
+    /// Stored as a flat array: [x1,y1, x2,y2, x3,y3, x4,y4, ...] per biome.
+    /// </summary>
+    public Vector2[][] BiomeZoneLines = Array.Empty<Vector2[]>();
+    public NetCoordinates[] BiomeZoneCoords = Array.Empty<NetCoordinates>();
+    public Color[] BiomeZoneColors = Array.Empty<Color>();
 
     // Frontier fields
 
@@ -59,7 +71,10 @@ public sealed class NavInterfaceState
         Angle? angle,
         Dictionary<NetEntity, List<DockingPortState>> docks,
         InertiaDampeningMode dampeningMode, // Frontier
-        Dictionary<string, string>? networkPortNames = null)
+        Dictionary<string, string>? networkPortNames = null,
+        Vector2[][]? biomeZoneLines = null,
+        NetCoordinates[]? biomeZoneCoords = null,
+        Color[]? biomeZoneColors = null)
     {
         MaxRange = maxRange;
         Coordinates = coordinates;
@@ -67,6 +82,9 @@ public sealed class NavInterfaceState
         Docks = docks;
         DampeningMode = dampeningMode; // Frontier
         NetworkPortNames = networkPortNames ?? new Dictionary<string, string>();
+        BiomeZoneLines = biomeZoneLines ?? Array.Empty<Vector2[]>();
+        BiomeZoneCoords = biomeZoneCoords ?? Array.Empty<NetCoordinates>();
+        BiomeZoneColors = biomeZoneColors ?? Array.Empty<Color>();
     }
 }
 

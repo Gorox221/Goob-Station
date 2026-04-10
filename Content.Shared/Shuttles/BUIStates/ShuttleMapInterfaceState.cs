@@ -7,6 +7,7 @@
 using Content.Shared.Shuttles.Systems;
 using Content.Shared.Shuttles.UI.MapObjects;
 using Content.Shared.Timing;
+using Content.Shared._Shiptest.SpaceBiomes;
 using Robust.Shared.Serialization;
 
 namespace Content.Shared.Shuttles.BUIStates;
@@ -31,15 +32,22 @@ public sealed class ShuttleMapInterfaceState
 
     public List<ShuttleExclusionObject> Exclusions;
 
+    /// <summary>
+    /// CorvaxGoob: Space biome zones displayed on the map.
+    /// </summary>
+    public List<BiomeZoneObject> BiomeZones;
+
     public ShuttleMapInterfaceState(
         FTLState ftlState,
         StartEndTime ftlTime,
         List<ShuttleBeaconObject> destinations,
-        List<ShuttleExclusionObject> exclusions)
+        List<ShuttleExclusionObject> exclusions,
+        List<BiomeZoneObject>? biomeZones = null)
     {
         FTLState = ftlState;
         FTLTime = ftlTime;
         Destinations = destinations;
         Exclusions = exclusions;
+        BiomeZones = biomeZones ?? new List<BiomeZoneObject>();
     }
 }
