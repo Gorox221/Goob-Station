@@ -9,6 +9,7 @@ namespace Content.Shared._Shiptest.SpaceBiomes;
 /// <summary>
 /// Network-serializable representation of a biome zone for map display.
 /// Contains boundary line segments for rendering irregular shapes.
+/// For grid-based biomes, contains square fill vertices.
 /// </summary>
 [Serializable, NetSerializable]
 public sealed class BiomeZoneObject : IMapObject
@@ -24,6 +25,13 @@ public sealed class BiomeZoneObject : IMapObject
     /// Format: [x0,y0, x1,y1, x2,y2, x3,y3, ...]
     /// </summary>
     public Vector2[] BoundaryLines;
+
+    /// <summary>
+    /// Fill vertices for square biome zones (for colored fill rendering).
+    /// Contains 4 corner points relative to biome center.
+    /// Null for organic (non-grid) biomes.
+    /// </summary>
+    public Vector2[]? FillVertices;
 
     /// <summary>
     /// Average radius for viewport culling.
@@ -54,6 +62,7 @@ public sealed class BiomeZoneObject : IMapObject
     public BiomeZoneObject(
         NetCoordinates coordinates,
         Vector2[] boundaryLines,
+        Vector2[]? fillVertices,
         float averageRadius,
         string biomeId,
         string name,
@@ -61,6 +70,7 @@ public sealed class BiomeZoneObject : IMapObject
     {
         Coordinates = coordinates;
         BoundaryLines = boundaryLines;
+        FillVertices = fillVertices;
         AverageRadius = averageRadius;
         BiomeId = biomeId;
         Name = name;

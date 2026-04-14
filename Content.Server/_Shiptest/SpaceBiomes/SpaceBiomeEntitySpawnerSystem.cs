@@ -221,8 +221,8 @@ public sealed class SpaceBiomeEntitySpawnerSystem : EntitySystem
     }
 
     /// <summary>
-    /// Spawns a batch of entities randomly across the biome's area.
-    /// Each entity is placed at a random position inside the biome's irregular boundary.
+    /// Spawns a batch of entities randomly across the biome's square area.
+    /// Each entity is placed at a random position inside the biome's square boundary.
     /// </summary>
     private void TrySpawnBatch(BiomeSpawnState state)
     {
@@ -232,8 +232,11 @@ public sealed class SpaceBiomeEntitySpawnerSystem : EntitySystem
             return;
         }
 
-        var radius = state.EffectiveRadius;
+        var halfSize = state.EffectiveRadius; // For grid biomes, this is half the cell size
         var spawned = 0;
+        
+        // Check if this is a grid-based biome (square)
+        var isGridBiome = HasComp<SpaceBiomeGridCellComponent>(state.BiomeUid);
 
         for (var i = 0; i < BatchSpawnCount; i++)
         {
@@ -241,14 +244,27 @@ public sealed class SpaceBiomeEntitySpawnerSystem : EntitySystem
             var placed = false;
             for (var attempt = 0; attempt < MaxSpawnAttempts; attempt++)
             {
-                // Random position within bounding circle
-                var angle = _random.NextFloat(0, MathF.Tau);
-                var distance = _random.NextFloat(0, radius);
-                var localPos = new Vector2(MathF.Cos(angle) * distance, MathF.Sin(angle) * distance);
+                Vector2 localPos;
+                
+                if (isGridBiome)
+                {
+                    // Random position within square boundary
+                    localPos = new Vector2(
+                        _random.NextFloat(-halfSize, halfSize),
+                        _random.NextFloat(-halfSize, halfSize)
+                    );
+                }
+                else
+                {
+                    // Random position within circular boundary
+                    var angle = _random.NextFloat(0, MathF.Tau);
+                    var distance = _random.NextFloat(0, halfSize);
+                    localPos = new Vector2(MathF.Cos(angle) * distance, MathF.Sin(angle) * distance);
 
-                // Check if inside irregular boundary
-                if (!state.Source.ContainsPoint(localPos))
-                    continue;
+                    // Check if inside irregular boundary
+                    if (!state.Source.ContainsPoint(localPos))
+                        continue;
+                }
 
                 var worldPos = state.Center + localPos;
 
@@ -264,6 +280,6 @@ public sealed class SpaceBiomeEntitySpawnerSystem : EntitySystem
         }
 
         if (spawned > 0)
-            _sawmill.Info($"Spawned {spawned}/{BatchSpawnCount} {state.Entry.EntityId} in biome '{state.Source.Biome}' (radius={radius:F0}m)");
+            _sawmill.Info($"Spawned {spawned}/{BatchSpawnCount} {state.Entry.EntityId} in biome '{state.Source.Biome}' (size={halfSize * 2:F0}m)");
     }
 }

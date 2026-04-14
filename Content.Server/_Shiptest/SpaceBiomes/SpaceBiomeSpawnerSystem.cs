@@ -119,7 +119,8 @@ public sealed class SpaceBiomeSpawnerSystem : EntitySystem
     {
         base.Initialize();
         _sawmill = IoCManager.Resolve<ILogManager>().GetSawmill("biome_spawner");
-        SubscribeLocalEvent<StationPostInitEvent>(OnStationPostInit);
+        // DISABLED: Replaced by SpaceBiomeGridSystem for square grid-based biomes
+        // SubscribeLocalEvent<StationPostInitEvent>(OnStationPostInit);
     }
 
     private void OnStationPostInit(ref StationPostInitEvent ev)

@@ -36,10 +36,12 @@ public sealed class NavInterfaceState
     /// CorvaxGoob: Space biome zones for display on radar/mass scanner.
     /// Each biome is a set of line segments (pairs of Vector2) relative to the biome center.
     /// Stored as a flat array: [x1,y1, x2,y2, x3,y3, x4,y4, ...] per biome.
+    /// For grid biomes, FillVertices contains 4 corner points for square fill rendering.
     /// </summary>
     public Vector2[][] BiomeZoneLines = Array.Empty<Vector2[]>();
     public NetCoordinates[] BiomeZoneCoords = Array.Empty<NetCoordinates>();
     public Color[] BiomeZoneColors = Array.Empty<Color>();
+    public Vector2[][]? BiomeZoneFillVertices = null;
 
     // Frontier fields
 
@@ -74,7 +76,8 @@ public sealed class NavInterfaceState
         Dictionary<string, string>? networkPortNames = null,
         Vector2[][]? biomeZoneLines = null,
         NetCoordinates[]? biomeZoneCoords = null,
-        Color[]? biomeZoneColors = null)
+        Color[]? biomeZoneColors = null,
+        Vector2[][]? biomeZoneFillVertices = null)
     {
         MaxRange = maxRange;
         Coordinates = coordinates;
@@ -85,6 +88,7 @@ public sealed class NavInterfaceState
         BiomeZoneLines = biomeZoneLines ?? Array.Empty<Vector2[]>();
         BiomeZoneCoords = biomeZoneCoords ?? Array.Empty<NetCoordinates>();
         BiomeZoneColors = biomeZoneColors ?? Array.Empty<Color>();
+        BiomeZoneFillVertices = biomeZoneFillVertices;
     }
 }
 

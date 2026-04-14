@@ -59,6 +59,7 @@ public sealed partial class ShuttleNavControl : BaseShuttleControl
     private Vector2[][] _biomeZoneLines = Array.Empty<Vector2[]>();
     private NetCoordinates[] _biomeZoneCoords = Array.Empty<NetCoordinates>();
     private Color[] _biomeZoneColors = Array.Empty<Color>();
+    private Vector2[][]? _biomeZoneFillVertices = null;
 
     public bool ShowIFF { get; set; } = true;
     public bool ShowBiomes { get; set; } = true;
@@ -95,7 +96,8 @@ public sealed partial class ShuttleNavControl : BaseShuttleControl
     private float _lastFireTime;
     private const float FireRateLimit = 0.1f; // 100ms between shots
 
-    public ShuttleNavControl() : base(64f, 256f, 256f)
+    // Zoom range: min 64 (close up), max 32000 (see entire 19x19 grid = 28500m), default 256
+    public ShuttleNavControl() : base(64f, 32000f, 256f)
     {
         RobustXamlLoader.Load(this);
         _shuttles = EntManager.System<SharedShuttleSystem>();
@@ -253,6 +255,7 @@ public sealed partial class ShuttleNavControl : BaseShuttleControl
         _biomeZoneLines = state.BiomeZoneLines;
         _biomeZoneCoords = state.BiomeZoneCoords;
         _biomeZoneColors = state.BiomeZoneColors;
+        _biomeZoneFillVertices = state.BiomeZoneFillVertices;
 
         NfUpdateState(state); // Frontier Update State
     }
@@ -787,9 +790,9 @@ public sealed partial class ShuttleNavControl : BaseShuttleControl
     }
 
     /// <summary>
-    /// CorvaxGoob: Draw biome zone boundary lines on the radar view.
+    /// CorvaxGoob: Draw biome zones on radar (fill + boundary outline).
     /// Lines are generated server-side and sent as Vector2 pairs relative to biome center.
-    /// Drawn the same way as grid edges via LineList.
+    /// For grid biomes, filled squares are drawn with low alpha.
     /// </summary>
     private void DrawBiomeZonesInternal(DrawingHandleScreen handle)
     {
@@ -825,6 +828,27 @@ public sealed partial class ShuttleNavControl : BaseShuttleControl
             var biomeWorldPos = biomeCoords.Position;
             var color = _biomeZoneColors[i];
             var lines = _biomeZoneLines[i];
+
+            // Draw fill for grid biomes (if fill vertices exist)
+            if (_biomeZoneFillVertices != null && i < _biomeZoneFillVertices.Length)
+            {
+                var fillVerts = _biomeZoneFillVertices[i];
+                if (fillVerts != null && fillVerts.Length >= 4)
+                {
+                    // Transform fill vertices to screen space and create 2 triangles
+                    var screenVerts = new Vector2[6];
+                    for (int v = 0; v < 4; v++)
+                    {
+                        var worldVert = biomeWorldPos + fillVerts[v];
+                        screenVerts[v] = Vector2.Transform(worldVert, worldToView);
+                    }
+                    // Triangle 1: 0,1,2 Triangle 2: 0,2,3
+                    screenVerts[4] = screenVerts[0];
+                    screenVerts[5] = screenVerts[2];
+
+                    handle.DrawPrimitives(DrawPrimitiveTopology.TriangleList, screenVerts, color.WithAlpha(0.15f));
+                }
+            }
 
             // Draw each boundary line segment — transform both endpoints through worldToView
             for (var j = 0; j < lines.Length; j += 2)

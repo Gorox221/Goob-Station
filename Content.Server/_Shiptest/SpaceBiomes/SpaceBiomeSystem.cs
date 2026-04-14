@@ -4,6 +4,7 @@ using Content.Server.Station.Systems;
 using Content.Shared._Shiptest.SpaceBiomes;
 using Robust.Server.GameObjects;
 using Robust.Shared.Maths;
+using Robust.Shared.Prototypes;
 using TransformSystem = Robust.Server.GameObjects.TransformSystem;
 
 namespace Content.Server._Shiptest.SpaceBiomes;
@@ -34,6 +35,7 @@ internal static class SpaceBiomeHelpers
 public sealed class SpaceBiomeSystem : EntitySystem
 {
     [Dependency] private readonly TransformSystem _transform = default!;
+    [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
 
     // Chunk-to-biome-sources mapping
     private readonly Dictionary<Vector2, HashSet<EntityUid>> _chunks = new();
@@ -127,7 +129,10 @@ public sealed class SpaceBiomeSystem : EntitySystem
 
         foreach (var sourceUid in sourceUids)
         {
-            var source = Comp<SpaceBiomeSourceComponent>(sourceUid);
+            // Safely check for component - entity may have been deleted or modified
+            if (!TryComp<SpaceBiomeSourceComponent>(sourceUid, out var source))
+                continue;
+
             var sourcePos = _transform.GetWorldPosition(sourceUid);
             var relativePos = worldPos - sourcePos;
 
@@ -142,7 +147,31 @@ public sealed class SpaceBiomeSystem : EntitySystem
             }
         }
 
-        return bestSource != null ? Comp<SpaceBiomeSourceComponent>(bestSource.Value).Biome : "default";
+        if (bestSource == null)
+            return "default";
+
+        if (!TryComp<SpaceBiomeSourceComponent>(bestSource.Value, out var bestComp))
+            return "default";
+
+        return bestComp.Biome;
+    }
+
+    /// <summary>
+    /// Checks if scanning is blocked at a given world position.
+    /// Returns true if the position is inside a biome that has BlocksScanning = true.
+    /// </summary>
+    public bool IsScanningBlocked(Vector2 worldPos)
+    {
+        var biomeId = GetBiomeAt(worldPos);
+        if (biomeId == "default")
+            return false;
+
+        if (_prototypeManager.TryIndex<SpaceBiomePrototype>(biomeId, out var proto))
+        {
+            return proto.BlocksScanning;
+        }
+
+        return false;
     }
 
     public void RegenerateChunks()

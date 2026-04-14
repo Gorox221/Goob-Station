@@ -85,7 +85,8 @@ public sealed partial class ShuttleMapControl : BaseShuttleControl
     private readonly Dictionary<Color, List<(Vector2, string)>> _strings = new();
     private readonly List<ShuttleExclusionObject> _viewportExclusions = new();
 
-    public ShuttleMapControl() : base(256f, 1024f, 1024f) // Frontier edit
+    // Zoom range: min 128 (close up), max 32000 (see entire 19x19 grid = 28500m), default 1024
+    public ShuttleMapControl() : base(128f, 32000f, 1024f) // Frontier edit
     {
         RobustXamlLoader.Load(this);
         _mapSystem = EntManager.System<SharedMapSystem>();
@@ -320,7 +321,7 @@ public sealed partial class ShuttleMapControl : BaseShuttleControl
             _viewportExclusions.Add(exclusion);
         }
 
-        // CorvaxGoob: Draw biome zone boundary outline
+        // CorvaxGoob: Draw biome zones (fill + boundary outline)
         foreach (var mapObj in mapObjects)
         {
             if (mapObj is not BiomeZoneObject biome || biome.BoundaryLines.Length == 0)
@@ -340,6 +341,28 @@ public sealed partial class ShuttleMapControl : BaseShuttleControl
             var adjustedCenter = Vector2.Transform(mapCoords.Position, matty);
             var localCenter = ScalePosition(adjustedCenter with { Y = -adjustedCenter.Y });
             var color = biome.Color;
+
+            // Draw fill for grid-based biomes (squares)
+            if (biome.FillVertices != null && biome.FillVertices.Length >= 4)
+            {
+                // Transform fill vertices to screen space
+                var fillVerts = new Vector2[6]; // 2 triangles = 6 vertices
+                
+                // Create 2 triangles from 4 corners (counter-clockwise winding)
+                // Triangle 1: top-left, bottom-left, bottom-right
+                for (int i = 0; i < 4; i++)
+                {
+                    var vert = biome.FillVertices[i];
+                    fillVerts[i] = localCenter + new Vector2(vert.X, -vert.Y) * MinimapScale;
+                }
+                
+                // Triangle indices for quad: 0,1,2 and 0,2,3
+                fillVerts[4] = fillVerts[0]; // Copy for triangle 2
+                fillVerts[5] = fillVerts[2]; // Copy for triangle 2
+
+                // Draw filled square with low alpha
+                handle.DrawPrimitives(DrawPrimitiveTopology.TriangleList, fillVerts, color.WithAlpha(0.15f));
+            }
 
             // Draw each boundary line segment
             for (var i = 0; i < biome.BoundaryLines.Length; i += 2)

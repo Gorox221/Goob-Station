@@ -10,10 +10,7 @@
   description: "Бескрайняя пустота между звёзд"
   swapDuration: 3
   mapColor: "#00000000"
-  spawns:
-    - entity: NukeDisk
-      interval: 300
-      enabled: false
+  spawns: []
 
 # Asteroid belt biome — amber/orange
 - type: spaceFactionBiome
@@ -41,17 +38,28 @@
       interval: 3
       enabled: true
 
-# Anomalous space biome — eerie purple
+# Nebula space biome — eerie purple (blocks shuttle console scanning)
 - type: spaceFactionBiome
-  id: AnomalousSpace
+  id: NebulaSpace
   parallax: Default
-  name: "Аномальный Сектор"
-  description: "Пространство, искажённое неизвестными силами"
+  name: "Туманность"
+  description: "Плотные облака газа и пыли блокируют сенсоры"
   swapDuration: 4
   mapColor: "#9944CC"
+  spawns: []
+  blocksScanning: true
+
+# Ion storm / Carp biome — blue-green electrical storms
+- type: spaceFactionBiome
+  id: IonStorm
+  parallax: Default
+  name: "Ионный Шторм"
+  description: "Заряженные частицы бушуют в этом секторе"
+  swapDuration: 2
+  mapColor: "#00CCAA"
   spawns:
-    - entity: NukeDisk
-      interval: 75
+    - entity: InvisibleTesla
+      interval: 8
       enabled: true
 
 ---
@@ -87,11 +95,20 @@
       priority: 0
 
 - type: entity
-  id: SpaceBiomeSourceAnomalousSpace
-  name: anomalous space biome source
+  id: SpaceBiomeSourceIonStorm
+  name: ion storm biome source
   components:
     - type: SpaceBiomeSource
-      biome: AnomalousSpace
+      biome: IonStorm
+      swapDistance: 400
+      priority: 0
+
+- type: entity
+  id: SpaceBiomeSourceNebulaSpace
+  name: nebula biome source
+  components:
+    - type: SpaceBiomeSource
+      biome: NebulaSpace
       swapDistance: 400
       priority: 0
 

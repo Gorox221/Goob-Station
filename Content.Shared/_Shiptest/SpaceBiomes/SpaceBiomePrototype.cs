@@ -54,6 +54,13 @@ public sealed class SpaceBiomePrototype : IPrototype
     public Color MapColor = Color.White;
 
     /// <summary>
+    /// Whether this biome blocks shuttle console scanning.
+    /// When true, consoles inside this biome cannot scan or display grids and map objects.
+    /// </summary>
+    [DataField]
+    public bool BlocksScanning = false;
+
+    /// <summary>
     /// Entities that spawn within this biome.
     /// Multiple entries can be defined for variety.
     /// </summary>

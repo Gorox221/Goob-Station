@@ -131,6 +131,7 @@ using Content.Shared.Power;
 using Content.Shared.Shuttles.UI.MapObjects;
 using Content.Shared.Timing;
 using Content.Shared._Shiptest.SpaceBiomes;
+using Content.Server._Shiptest.SpaceBiomes;
 using Robust.Server.GameObjects;
 using System.Numerics;
 using Robust.Shared.Collections;
@@ -162,6 +163,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
     [Dependency] private readonly IGameTiming _timing = default!;
 
     [Dependency] private readonly _Lavaland.Shuttles.Systems.DockingConsoleSystem _dockingConsole = default!; // Lavaland Change: FTL
+    [Dependency] private readonly Content.Server._Shiptest.SpaceBiomes.SpaceBiomeSystem _biomeSystem = default!;
 
     private EntityQuery<MetaDataComponent> _metaQuery;
     private EntityQuery<TransformComponent> _xformQuery;
@@ -397,7 +399,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
         if (shuttleGridUid != null && entity != null)
         {
             navState = GetNavState(entity.Value, dockState.Docks);
-            mapState = GetMapState(shuttleGridUid.Value);
+            mapState = GetMapState(shuttleGridUid.Value, consoleXform?.Coordinates);
         }
         else
         {
@@ -540,12 +542,28 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
         if (!Resolve(entity, ref entity.Comp1, ref entity.Comp2, false))
             return new NavInterfaceState(SharedRadarConsoleSystem.DefaultMaxRange, GetNetCoordinates(coordinates), angle, docks, InertiaDampeningMode.Dampen);
 
+        // Check if console is in a biome that blocks scanning (e.g., NebulaSpace)
+        var consoleWorldPos = _transform.ToMapCoordinates(coordinates).Position;
+        var scanningBlocked = _biomeSystem.IsScanningBlocked(consoleWorldPos);
+
+        if (scanningBlocked)
+        {
+            // Return empty nav state - no grids, no beacons, no docking info
+            return new NavInterfaceState(
+                0f, // Zero range = can't scan anything
+                GetNetCoordinates(coordinates),
+                angle,
+                new Dictionary<NetEntity, List<DockingPortState>>(),
+                _shuttle.NfGetInertiaDampeningMode(entity));
+        }
+
         // CorvaxGoob: collect biome zone data for radar display
         GetBiomeZoneDataForNav(
             coordinates,
             out var biomeLines,
             out var biomeCoords,
-            out var biomeColors);
+            out var biomeColors,
+            out var biomeFillVertices);
 
         return new NavInterfaceState(
             entity.Comp1.MaxRange,
@@ -555,24 +573,28 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
             _shuttle.NfGetInertiaDampeningMode(entity), // Frontier
             biomeZoneLines: biomeLines,
             biomeZoneCoords: biomeCoords,
-            biomeZoneColors: biomeColors);
+            biomeZoneColors: biomeColors,
+            biomeZoneFillVertices: biomeFillVertices);
     }
 
     /// <summary>
     /// CorvaxGoob: Collects biome zone boundary lines and world coordinates for nav/radar display.
     /// Generates line segments from the irregular boundary shape stored on each biome source.
+    /// For grid-based biomes, generates square boundaries and fill vertices.
     /// </summary>
     private void GetBiomeZoneDataForNav(
         EntityCoordinates referenceCoords,
         out Vector2[][] lines,
         out NetCoordinates[] coords,
-        out Color[] colors)
+        out Color[] colors,
+        out Vector2[][]? fillVertices)
     {
         var refMapPos = _transform.ToMapCoordinates(referenceCoords);
         var refMapId = refMapPos.MapId;
         var linesList = new List<Vector2[]>();
         var coordsList = new List<NetCoordinates>();
         var colorsList = new List<Color>();
+        var fillList = new List<Vector2[]>();
 
         const int BoundaryResolution = 32;
 
@@ -595,8 +617,24 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
             if (offset.Length() > source.SwapDistance * 3f)
                 continue;
 
-            // Generate boundary line segments from the biome's shape
-            var boundaryLines = GenerateBiomeBoundaryLines(source, BoundaryResolution);
+            // Check if this is a grid-based biome (square)
+            var isGridBiome = HasComp<SpaceBiomeGridCellComponent>(uid);
+            
+            // Generate boundary line segments (square or organic)
+            var boundaryLines = isGridBiome 
+                ? GenerateSquareBoundaryLines(source)
+                : GenerateBiomeBoundaryLines(source, BoundaryResolution);
+            
+            // For grid biomes, also generate fill vertices
+            if (isGridBiome)
+            {
+                fillList.Add(GenerateSquareFillVertices(source));
+            }
+            else
+            {
+                fillList.Add(Array.Empty<Vector2>());
+            }
+            
             linesList.Add(boundaryLines);
             coordsList.Add(GetNetCoordinates(xform.Coordinates));
             colorsList.Add(biomeProto.MapColor);
@@ -605,6 +643,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
         lines = linesList.ToArray();
         coords = coordsList.ToArray();
         colors = colorsList.ToArray();
+        fillVertices = fillList.Count > 0 ? fillList.ToArray() : null;
     }
 
     /// <summary>
@@ -634,6 +673,49 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
         }
 
         return lines;
+    }
+
+    /// <summary>
+    /// Generates square boundary lines for grid-based biome cells.
+    /// Returns 4 line segments forming a square centered on the biome.
+    /// </summary>
+    private static Vector2[] GenerateSquareBoundaryLines(SpaceBiomeSourceComponent source)
+    {
+        // For grid biomes, SwapDistance is half the cell size (750m)
+        var halfSize = source.SwapDistance;
+
+        // Square corners (counter-clockwise from top-left)
+        var topLeft = new Vector2(-halfSize, -halfSize);
+        var topRight = new Vector2(halfSize, -halfSize);
+        var bottomRight = new Vector2(halfSize, halfSize);
+        var bottomLeft = new Vector2(-halfSize, halfSize);
+
+        // Return 4 line segments (8 Vector2s)
+        return new Vector2[]
+        {
+            topLeft, topRight,      // Top edge
+            topRight, bottomRight,  // Right edge
+            bottomRight, bottomLeft,// Bottom edge
+            bottomLeft, topLeft     // Left edge
+        };
+    }
+
+    /// <summary>
+    /// Generates fill vertices for square biome zones.
+    /// Returns 4 corner points for rendering a colored square fill.
+    /// </summary>
+    private static Vector2[] GenerateSquareFillVertices(SpaceBiomeSourceComponent source)
+    {
+        var halfSize = source.SwapDistance;
+
+        // Return 4 corners (counter-clockwise from top-left)
+        return new Vector2[]
+        {
+            new Vector2(-halfSize, -halfSize),  // Top-left
+            new Vector2(-halfSize, halfSize),   // Bottom-left
+            new Vector2(halfSize, halfSize),    // Bottom-right
+            new Vector2(halfSize, -halfSize),   // Top-right
+        };
     }
 
     /// <summary>
@@ -677,7 +759,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
     /// <summary>
     /// Specific to a particular shuttle.
     /// </summary>
-    public ShuttleMapInterfaceState GetMapState(EntityUid shuttleGridUid)
+    public ShuttleMapInterfaceState GetMapState(EntityUid shuttleGridUid, EntityCoordinates? consoleCoords = null)
     {
         FTLState ftlState = FTLState.Available;
         StartEndTime stateDuration = default;
@@ -691,6 +773,25 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
         {
             ftlState = shuttle.Comp.State;
             stateDuration = _shuttle.GetStateTime(shuttle.Comp);
+        }
+
+        // Check if console is in a biome that blocks scanning (e.g., NebulaSpace)
+        var scanningBlocked = false;
+        if (consoleCoords.HasValue)
+        {
+            var consoleWorldPos = _transform.ToMapCoordinates(consoleCoords.Value).Position;
+            scanningBlocked = _biomeSystem.IsScanningBlocked(consoleWorldPos);
+        }
+
+        if (scanningBlocked)
+        {
+            // Return empty state - no beacons, no exclusions, no biomes
+            return new ShuttleMapInterfaceState(
+                ftlState,
+                stateDuration,
+                new List<ShuttleBeaconObject>(),
+                new List<ShuttleExclusionObject>(),
+                new List<BiomeZoneObject>());
         }
 
         List<ShuttleBeaconObject>? beacons = null;
@@ -717,6 +818,8 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
     /// CorvaxGoob: Collects all active space biome zones for map display.
     /// Generates boundary line segments for each biome source.
     /// Only includes biomes on the same map as the shuttle.
+    /// Supports both organic (circular) and grid-based (square) biomes.
+    /// For grid biomes, also generates fill vertices for colored square rendering.
     /// </summary>
     private void GetBiomeZones(ref List<BiomeZoneObject>? biomeZones, MapId? shuttleMapId = null)
     {
@@ -739,13 +842,24 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
             var netCoords = GetNetCoordinates(xform.Coordinates);
             var avgRadius = source.SwapDistance;
 
-            // Generate boundary line segments
-            var boundaryLines = GenerateBiomeBoundaryLines(source, BoundaryResolution);
+            // Check if this is a grid-based biome (square)
+            var isGridBiome = HasComp<SpaceBiomeGridCellComponent>(uid);
+
+            // Generate boundary line segments (square or organic)
+            var boundaryLines = isGridBiome
+                ? GenerateSquareBoundaryLines(source)
+                : GenerateBiomeBoundaryLines(source, BoundaryResolution);
+
+            // For grid biomes, also generate fill vertices for colored rendering
+            Vector2[]? fillVertices = isGridBiome
+                ? GenerateSquareFillVertices(source)
+                : null;
 
             biomeZones ??= new List<BiomeZoneObject>();
             biomeZones.Add(new BiomeZoneObject(
                 netCoords,
                 boundaryLines,
+                fillVertices,
                 avgRadius,
                 source.Biome,
                 biomeProto.Name,
