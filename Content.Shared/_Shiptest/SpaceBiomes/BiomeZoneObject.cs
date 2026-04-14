@@ -54,6 +54,11 @@ public sealed class BiomeZoneObject : IMapObject
     public Color Color;
 
     /// <summary>
+    /// If true, grids inside this biome zone should be hidden on shuttle console maps.
+    /// </summary>
+    public bool BlocksScanning;
+
+    /// <summary>
     /// Whether to hide the button representation on the map screen.
     /// Biome zones are drawn as line boundaries, not buttons.
     /// </summary>
@@ -66,7 +71,8 @@ public sealed class BiomeZoneObject : IMapObject
         float averageRadius,
         string biomeId,
         string name,
-        Color color)
+        Color color,
+        bool blocksScanning = false)
     {
         Coordinates = coordinates;
         BoundaryLines = boundaryLines;
@@ -75,5 +81,6 @@ public sealed class BiomeZoneObject : IMapObject
         BiomeId = biomeId;
         Name = name;
         Color = color;
+        BlocksScanning = blocksScanning;
     }
 }

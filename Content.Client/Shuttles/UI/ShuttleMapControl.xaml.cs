@@ -67,6 +67,11 @@ public sealed partial class ShuttleMapControl : BaseShuttleControl
     public bool InFtl;
 
     /// <summary>
+    /// _Shiptest: If true, scanning is blocked (e.g., inside Nebula biome).
+    /// </summary>
+    public bool ScanningBlocked = false;
+
+    /// <summary>
     /// Raised when a request to FTL to a particular spot is raised.
     /// </summary>
     public event Action<MapCoordinates, Angle>? RequestFTL;
@@ -257,7 +262,7 @@ public sealed partial class ShuttleMapControl : BaseShuttleControl
         var mapObjects = _mapObjects;
         DrawRecenter();
 
-        if (InFtl || mapObjects.Count == 0)
+        if (InFtl || ScanningBlocked || mapObjects.Count == 0)
         {
             DrawBacking(handle);
             DrawNoSignal(handle);
@@ -321,7 +326,7 @@ public sealed partial class ShuttleMapControl : BaseShuttleControl
             _viewportExclusions.Add(exclusion);
         }
 
-        // CorvaxGoob: Draw biome zones (fill + boundary outline)
+        // _Shiptest: Draw biome zones (fill + boundary outline)
         foreach (var mapObj in mapObjects)
         {
             if (mapObj is not BiomeZoneObject biome || biome.BoundaryLines.Length == 0)

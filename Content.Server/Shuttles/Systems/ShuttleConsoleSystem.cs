@@ -791,7 +791,8 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
                 stateDuration,
                 new List<ShuttleBeaconObject>(),
                 new List<ShuttleExclusionObject>(),
-                new List<BiomeZoneObject>());
+                new List<BiomeZoneObject>(),
+                scanningBlocked: true);
         }
 
         List<ShuttleBeaconObject>? beacons = null;
@@ -863,7 +864,8 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
                 avgRadius,
                 source.Biome,
                 biomeProto.Name,
-                biomeProto.MapColor));
+                biomeProto.MapColor,
+                biomeProto.BlocksScanning));
         }
     }
 }

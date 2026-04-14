@@ -265,6 +265,14 @@ public sealed partial class ShuttleNavControl : BaseShuttleControl
         base.Draw(handle);
 
         DrawBacking(handle);
+
+        // Scanning blocked (e.g., inside Nebula biome) — show no signal
+        if (WorldMaxRange <= 0f)
+        {
+            DrawNoSignal(handle);
+            return;
+        }
+
         DrawCircles(handle);
 
         // No data

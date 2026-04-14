@@ -33,21 +33,29 @@ public sealed class ShuttleMapInterfaceState
     public List<ShuttleExclusionObject> Exclusions;
 
     /// <summary>
-    /// CorvaxGoob: Space biome zones displayed on the map.
+    /// _Shiptest: Space biome zones displayed on the map.
     /// </summary>
     public List<BiomeZoneObject> BiomeZones;
+
+    /// <summary>
+    /// _Shiptest: If true, scanning is blocked (e.g., inside Nebula biome).
+    /// Client should show "no signal" and not display grids.
+    /// </summary>
+    public bool ScanningBlocked = false;
 
     public ShuttleMapInterfaceState(
         FTLState ftlState,
         StartEndTime ftlTime,
         List<ShuttleBeaconObject> destinations,
         List<ShuttleExclusionObject> exclusions,
-        List<BiomeZoneObject>? biomeZones = null)
+        List<BiomeZoneObject>? biomeZones = null,
+        bool scanningBlocked = false)
     {
         FTLState = ftlState;
         FTLTime = ftlTime;
         Destinations = destinations;
         Exclusions = exclusions;
         BiomeZones = biomeZones ?? new List<BiomeZoneObject>();
+        ScanningBlocked = scanningBlocked;
     }
 }

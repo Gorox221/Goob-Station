@@ -28,6 +28,7 @@ using Robust.Shared.Audio.Systems;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Player;
+using Robust.Shared.Physics.Components;
 using Robust.Shared.Random;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
@@ -55,6 +56,7 @@ public sealed partial class MapScreen : BoxContainer
     private List<ShuttleBeaconObject> _beacons = new();
     private List<ShuttleExclusionObject> _exclusions = new();
     private List<BiomeZoneObject> _biomeZones = new();
+    private bool _scanningBlocked = false;
 
     private TimeSpan _nextPing;
     private TimeSpan _pingCooldown = TimeSpan.FromSeconds(3);
@@ -122,6 +124,7 @@ public sealed partial class MapScreen : BoxContainer
         _beacons = state.Destinations;
         _exclusions = state.Exclusions;
         _biomeZones = state.BiomeZones;
+        _scanningBlocked = state.ScanningBlocked;
         _state = state.FTLState;
         _ftlTime = state.FTLTime;
         MapRadar.InFtl = true;
@@ -266,6 +269,10 @@ public sealed partial class MapScreen : BoxContainer
         if (_shuttleEntity == null)
             return;
 
+        // Scanning blocked (e.g., inside Nebula biome) — don't discover any map objects
+        if (_scanningBlocked)
+            return;
+
         var mapComps = _entManager.AllEntityQueryEnumerator<MapComponent, TransformComponent, MetaDataComponent>();
         MapId ourMap = MapId.Nullspace;
 
@@ -328,6 +335,10 @@ public sealed partial class MapScreen : BoxContainer
             {
                 _entManager.TryGetComponent(grid.Owner, out IFFComponent? iffComp);
 
+                // _Shiptest: Hide grids that are inside a BlocksScanning biome (e.g., Nebula)
+                if (IsGridInBlockedBiome(grid.Owner))
+                    continue;
+
                 var gridObj = new GridMapObject()
                 {
                     Name = _entManager.GetComponent<MetaDataComponent>(grid.Owner).EntityName,
@@ -365,7 +376,7 @@ public sealed partial class MapScreen : BoxContainer
                 _pendingMapObjects.Add((mapComp.MapId, beacon));
             }
 
-            // CorvaxGoob: Add biome zones for this map
+            // _Shiptest: Add biome zones for this map
             foreach (var biomeZone in _biomeZones)
             {
                 var coords = _entManager.GetCoordinates(biomeZone.Coordinates);
@@ -446,6 +457,77 @@ public sealed partial class MapScreen : BoxContainer
     {
         MapRadar.SetMap(mapId, position);
         MapRadar.Offset = position;
+    }
+
+    /// <summary>
+    /// _Shiptest: Hides grids inside zones that block scanning (e.g., NebulaSpace).
+    /// This applies regardless of where the console itself is located.
+    /// </summary>
+    private bool IsGridInBlockedBiome(EntityUid gridUid)
+    {
+        if (!_entManager.TryGetComponent(gridUid, out TransformComponent? gridXform) ||
+            !_entManager.TryGetComponent(gridUid, out PhysicsComponent? gridPhysics))
+        {
+            return false;
+        }
+
+        var gridPosition = _maps.GetGridPosition((gridUid, gridPhysics), gridXform.LocalPosition, gridXform.LocalRotation);
+
+        foreach (var biome in _biomeZones)
+        {
+            if (!biome.BlocksScanning)
+                continue;
+
+            var biomeCoords = _entManager.GetCoordinates(biome.Coordinates);
+            var biomeMapCoords = _xformSystem.ToMapCoordinates(biomeCoords);
+
+            if (biomeMapCoords.MapId != gridXform.MapID)
+                continue;
+
+            var relativePosition = gridPosition - biomeMapCoords.Position;
+
+            // Grid biomes provide explicit fill polygons.
+            if (biome.FillVertices != null &&
+                biome.FillVertices.Length >= 3 &&
+                IsPointInPolygon(relativePosition, biome.FillVertices))
+            {
+                return true;
+            }
+
+            // Organic biomes are represented as ordered line-segment pairs.
+            if (biome.BoundaryLines.Length >= 6)
+            {
+                var polygon = new Vector2[biome.BoundaryLines.Length / 2];
+                for (var i = 0; i < polygon.Length; i++)
+                {
+                    polygon[i] = biome.BoundaryLines[i * 2];
+                }
+
+                if (IsPointInPolygon(relativePosition, polygon))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsPointInPolygon(Vector2 point, Vector2[] polygon)
+    {
+        var inside = false;
+        for (var i = 0; i < polygon.Length; i++)
+        {
+            var j = (i + polygon.Length - 1) % polygon.Length;
+            var pi = polygon[i];
+            var pj = polygon[j];
+
+            var intersects = ((pi.Y > point.Y) != (pj.Y > point.Y)) &&
+                             (point.X < (pj.X - pi.X) * (point.Y - pi.Y) / ((pj.Y - pi.Y) + float.Epsilon) + pi.X);
+
+            if (intersects)
+                inside = !inside;
+        }
+
+        return inside;
     }
 
     /// <summary>
@@ -540,6 +622,7 @@ public sealed partial class MapScreen : BoxContainer
 
     protected override void Draw(DrawingHandleScreen handle)
     {
+        MapRadar.ScanningBlocked = _scanningBlocked;
         MapRadar.SetMapObjects(_mapObjects);
         base.Draw(handle);
     }
