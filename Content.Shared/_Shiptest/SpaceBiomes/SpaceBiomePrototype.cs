@@ -32,6 +32,67 @@ public sealed partial class BiomeSpawnEntryPrototype
 }
 
 /// <summary>
+/// Configures periodic lightning strikes for a biome.
+/// </summary>
+[DataDefinition]
+public sealed partial class BiomeLightningStormPrototype
+{
+    /// <summary>
+    /// Enables or disables storm strikes for this biome.
+    /// </summary>
+    [DataField]
+    public bool Enabled = false;
+
+    /// <summary>
+    /// Minimum time between strike attempts in seconds.
+    /// </summary>
+    [DataField]
+    public float IntervalMin = 3f;
+
+    /// <summary>
+    /// Maximum time between strike attempts in seconds.
+    /// </summary>
+    [DataField]
+    public float IntervalMax = 6f;
+
+    /// <summary>
+    /// Extra radius around biome center where nearby players activate storm processing.
+    /// </summary>
+    [DataField]
+    public float PlayerActivationRange = 250f;
+
+    /// <summary>
+    /// Local strike range on the selected grid.
+    /// </summary>
+    [DataField]
+    public float ArcRangeOnGrid = 14f;
+
+    /// <summary>
+    /// Minimum amount of arcs after the primary strike.
+    /// </summary>
+    [DataField]
+    public int MinBolts = 1;
+
+    /// <summary>
+    /// Maximum amount of arcs after the primary strike.
+    /// </summary>
+    [DataField]
+    public int MaxBolts = 3;
+
+    /// <summary>
+    /// Recursive arc depth used by LightningSystem.
+    /// </summary>
+    [DataField]
+    public int ArcDepth = 1;
+
+    /// <summary>
+    /// Lightning prototype to use.
+    /// </summary>
+    [DataField]
+    public string LightningPrototype = "Lightning";
+}
+
+/// <summary>
 /// Defines a space biome with its display name and map color.
 /// </summary>
 [Prototype("spaceFactionBiome")]
@@ -66,4 +127,10 @@ public sealed class SpaceBiomePrototype : IPrototype
     /// </summary>
     [DataField("spawns")]
     public List<BiomeSpawnEntryPrototype> Spawns = new();
+
+    /// <summary>
+    /// Optional lightning storm behavior for this biome.
+    /// </summary>
+    [DataField]
+    public BiomeLightningStormPrototype? LightningStorm;
 }

@@ -33,10 +33,17 @@
   description: "Вызывает удары, подобные Тесле, в случайных частях вашего корабля. "
   swapDuration: 2
   mapColor: "#fdf907"
-  spawns:
-    - entity: InvisibleTesla
-      interval: 3
-      enabled: true
+  spawns: []
+  lightningStorm:
+    enabled: true
+    intervalMin: 5
+    intervalMax: 10
+    playerActivationRange: 250
+    arcRangeOnGrid: 14
+    minBolts: 3
+    maxBolts: 12
+    arcDepth: 1
+    lightningPrototype: Lightning
 
 # Nebula space biome — eerie purple (blocks shuttle console scanning)
 - type: spaceFactionBiome
