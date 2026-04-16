@@ -15,7 +15,7 @@
 # Asteroid belt biome — amber/orange
 - type: spaceFactionBiome
   id: AsteroidBelt
-  parallax: Default
+  parallax: TrainStation
   name: "Пояс Астероидов"
   description: "Каменные глыбы дрейфуют в тишине"
   swapDuration: 2
@@ -39,7 +39,7 @@
 # Debris field biome — dim gray
 - type: spaceFactionBiome
   id: DebrisField
-  parallax: Venus
+  parallax: Default
   name: "Электрический шторм"
   description: "Вызывает удары, подобные Тесле, в случайных частях вашего корабля. "
   swapDuration: 2
@@ -59,7 +59,7 @@
 # Nebula space biome — eerie purple (blocks shuttle console scanning)
 - type: spaceFactionBiome
   id: NebulaSpace
-  parallax: Default
+  parallax: KettleStation
   name: "Туманность"
   description: "Плотные облака газа и пыли блокируют сенсоры"
   swapDuration: 4

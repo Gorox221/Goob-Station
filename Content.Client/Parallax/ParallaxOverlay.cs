@@ -21,8 +21,10 @@ using System.Numerics;
 using Content.Client.Parallax.Managers;
 using Content.Shared.CCVar;
 using Content.Shared.Parallax.Biomes;
+using Content.Shared._Shiptest.SpaceBiomes;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
+using Robust.Client.Player;
 using Robust.Shared.Configuration;
 using Robust.Shared.Enums;
 using Robust.Shared.Map;
@@ -38,8 +40,13 @@ public sealed class ParallaxOverlay : Overlay
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     [Dependency] private readonly IConfigurationManager _configurationManager = default!;
     [Dependency] private readonly IParallaxManager _manager = default!;
+    [Dependency] private readonly IPlayerManager _playerManager = default!;
     private readonly SharedMapSystem _mapSystem;
     private readonly ParallaxSystem _parallax;
+
+    private string? _lastParallaxId;
+    private double _transitionStartTime;
+    private const float TransitionDurationSeconds = 1.5f;
 
     public override OverlaySpace Space => OverlaySpace.WorldSpaceBelowWorld;
 
@@ -70,8 +77,33 @@ public sealed class ParallaxOverlay : Overlay
         var position = args.Viewport.Eye?.Position.Position ?? Vector2.Zero;
         var worldHandle = args.WorldHandle;
 
-        var layers = _parallax.GetParallaxLayers(args.MapId);
+        var baseParallaxId = _parallax.GetParallax(args.MapId);
+        var effectiveParallaxId = baseParallaxId;
+
+        // If the local player has a biome-specific parallax override on the same map,
+        // prefer that over the map's default parallax.
+        if (_playerManager.LocalPlayer?.ControlledEntity is { } player &&
+            _entManager.TryGetComponent(player, out TransformComponent? playerXform) &&
+            playerXform.MapID == args.MapId &&
+            _entManager.TryGetComponent(player, out BiomeParallaxComponent? biomeParallax) &&
+            !string.IsNullOrEmpty(biomeParallax.ParallaxId))
+        {
+            effectiveParallaxId = biomeParallax.ParallaxId!;
+        }
+
+        if (!_manager.IsLoaded(effectiveParallaxId))
+        {
+            _manager.LoadParallaxByName(effectiveParallaxId);
+        }
+
+        var layers = _manager.GetParallaxLayers(effectiveParallaxId);
         var realTime = (float) _timing.RealTime.TotalSeconds;
+
+        if (_lastParallaxId != effectiveParallaxId)
+        {
+            _lastParallaxId = effectiveParallaxId;
+            _transitionStartTime = _timing.RealTime.TotalSeconds;
+        }
 
         foreach (var layer in layers)
         {
@@ -134,5 +166,23 @@ public sealed class ParallaxOverlay : Overlay
         }
 
         worldHandle.UseShader(null);
+
+        // Simple fade-to-black when switching parallax IDs.
+        var elapsed = (float) (_timing.RealTime.TotalSeconds - _transitionStartTime);
+        if (elapsed < TransitionDurationSeconds)
+        {
+            var t = elapsed / TransitionDurationSeconds;
+            if (t < 0f)
+                t = 0f;
+            if (t > 1f)
+                t = 1f;
+
+            var alpha = 1f - t;
+            if (alpha > 0f)
+            {
+                var fadeColor = new Color(0f, 0f, 0f, alpha);
+                worldHandle.DrawRect(args.WorldAABB, fadeColor);
+            }
+        }
     }
 }

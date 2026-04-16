@@ -243,6 +243,13 @@ public sealed class SpaceBiomePrototype : IPrototype
     public Color MapColor = Color.White;
 
     /// <summary>
+    /// Optional parallax prototype ID to use when entities are inside this biome.
+    /// If null or empty, fallback parallax is used.
+    /// </summary>
+    [DataField("parallax")]
+    public string? ParallaxId;
+
+    /// <summary>
     /// Whether this biome blocks shuttle console scanning.
     /// When true, consoles inside this biome cannot scan or display grids and map objects.
     /// </summary>
