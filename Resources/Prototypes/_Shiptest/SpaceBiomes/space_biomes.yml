@@ -6,6 +6,7 @@
 - type: spaceFactionBiome
   id: DefaultSpace
   parallax: Default
+  researchPoints: 100
   name: "Глубокий Космос"
   description: "Бескрайняя пустота между звёзд"
   swapDuration: 3
@@ -16,6 +17,7 @@
 - type: spaceFactionBiome
   id: AsteroidBelt
   parallax: TrainStation
+  researchPoints: 2000
   name: "Пояс Астероидов"
   description: "Каменные глыбы дрейфуют в тишине"
   swapDuration: 2
@@ -40,6 +42,7 @@
 - type: spaceFactionBiome
   id: DebrisField
   parallax: Default
+  researchPoints: 3000
   name: "Электрический шторм"
   description: "Вызывает удары, подобные Тесле, в случайных частях вашего корабля. "
   swapDuration: 2
@@ -60,6 +63,7 @@
 - type: spaceFactionBiome
   id: NebulaSpace
   parallax: KettleStation
+  researchPoints: 1000
   name: "Туманность"
   description: "Плотные облака газа и пыли блокируют сенсоры"
   swapDuration: 4
@@ -71,6 +75,7 @@
 - type: spaceFactionBiome
   id: IonStorm
   parallax: Default
+  researchPoints: 1250
   name: "Ионный Шторм"
   description: "Заряженные частицы бушуют в этом секторе"
   swapDuration: 2

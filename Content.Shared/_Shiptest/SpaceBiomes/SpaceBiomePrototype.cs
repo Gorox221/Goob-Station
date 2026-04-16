@@ -250,6 +250,12 @@ public sealed class SpaceBiomePrototype : IPrototype
     public string? ParallaxId;
 
     /// <summary>
+    /// Research points awarded on portable biome survey completion.
+    /// </summary>
+    [DataField]
+    public int ResearchPoints = 1000;
+
+    /// <summary>
     /// Whether this biome blocks shuttle console scanning.
     /// When true, consoles inside this biome cannot scan or display grids and map objects.
     /// </summary>

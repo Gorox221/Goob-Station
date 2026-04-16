@@ -25,6 +25,19 @@ public sealed partial class SpaceBiomeSourceComponent : Component
     public int Priority;
 
     /// <summary>
+    /// Maximum amount of portable scans available for this specific biome source.
+    /// </summary>
+    [DataField]
+    public int MaxPortableScans = 15;
+
+    /// <summary>
+    /// Remaining amount of portable scans for this specific biome source.
+    /// This is decremented by biome survey devices when scans complete.
+    /// </summary>
+    [DataField]
+    public int RemainingPortableScans = 15;
+
+    /// <summary>
     /// Server-only: boundary deformation points defining the irregular shape of this biome zone.
     /// Each value is a multiplier applied to SwapDistance at a given angle.
     /// Generated at spawn time, never changes.

@@ -1,0 +1,17 @@
+- type: entity
+  parent: BaseItem
+  id: PortableBiomeSurveyor
+  name: портативное устройство обследования
+  description: Ручное устройство для сканирование различных зон и явлений в космосе.
+  components:
+  - type: Sprite
+    sprite: _Shiptest/Objects/Research/survey.rsi
+    state: icon
+  - type: Icon
+    sprite: _Shiptest/Objects/Research/survey.rsi
+    state: icon
+  - type: Item
+    size: Small
+  - type: PortableBiomeSurveyor
+    scanDuration: 10
+    diskPrototype: ResearchDisk

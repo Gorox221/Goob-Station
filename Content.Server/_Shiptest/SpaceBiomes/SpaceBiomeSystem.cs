@@ -120,40 +120,49 @@ public sealed class SpaceBiomeSystem : EntitySystem
     /// </summary>
     public string GetBiomeAt(Vector2 worldPos)
     {
-        var chunkKey = GetChunkKey(worldPos);
-        if (!_chunks.TryGetValue(chunkKey, out var sourceUids))
+        if (!TryGetBiomeSourceAt(worldPos, out var biomeSource))
             return "default";
 
-        EntityUid? bestSource = null;
+        return biomeSource.Comp.Biome;
+    }
+
+    /// <summary>
+    /// Gets the highest-priority biome source at the given world position.
+    /// </summary>
+    public bool TryGetBiomeSourceAt(Vector2 worldPos, out Entity<SpaceBiomeSourceComponent> biomeSource)
+    {
+        biomeSource = default;
+        var chunkKey = GetChunkKey(worldPos);
+        if (!_chunks.TryGetValue(chunkKey, out var sourceUids))
+            return false;
+
+        EntityUid? bestSourceUid = null;
+        SpaceBiomeSourceComponent? bestSourceComp = null;
         var bestPriority = int.MinValue;
 
         foreach (var sourceUid in sourceUids)
         {
-            // Safely check for component - entity may have been deleted or modified
             if (!TryComp<SpaceBiomeSourceComponent>(sourceUid, out var source))
                 continue;
 
             var sourcePos = _transform.GetWorldPosition(sourceUid);
             var relativePos = worldPos - sourcePos;
-
             if (!source.ContainsPoint(relativePos))
                 continue;
 
-            if (source.Priority > bestPriority ||
-                (source.Priority == bestPriority && sourceUid == bestSource))
-            {
-                bestSource = sourceUid;
-                bestPriority = source.Priority;
-            }
+            if (source.Priority < bestPriority)
+                continue;
+
+            bestPriority = source.Priority;
+            bestSourceUid = sourceUid;
+            bestSourceComp = source;
         }
 
-        if (bestSource == null)
-            return "default";
+        if (bestSourceUid == null || bestSourceComp == null)
+            return false;
 
-        if (!TryComp<SpaceBiomeSourceComponent>(bestSource.Value, out var bestComp))
-            return "default";
-
-        return bestComp.Biome;
+        biomeSource = (bestSourceUid.Value, bestSourceComp);
+        return true;
     }
 
     /// <summary>
