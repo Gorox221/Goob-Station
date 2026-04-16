@@ -154,6 +154,73 @@ public sealed partial class BiomeEmpStormPrototype
 }
 
 /// <summary>
+/// Configures periodic meteor waves for a biome.
+/// </summary>
+[DataDefinition]
+public sealed partial class BiomeMeteorStormPrototype
+{
+    /// <summary>
+    /// Enables or disables meteor waves for this biome.
+    /// </summary>
+    [DataField]
+    public bool Enabled = false;
+
+    /// <summary>
+    /// Minimum time between meteor waves in seconds.
+    /// </summary>
+    [DataField]
+    public float IntervalMin = 20f;
+
+    /// <summary>
+    /// Maximum time between meteor waves in seconds.
+    /// </summary>
+    [DataField]
+    public float IntervalMax = 40f;
+
+    /// <summary>
+    /// Extra radius around biome center where nearby players activate meteor processing.
+    /// </summary>
+    [DataField]
+    public float PlayerActivationRange = 500f;
+
+    /// <summary>
+    /// Minimum number of meteors per wave.
+    /// </summary>
+    [DataField]
+    public int MinMeteorsPerWave = 3;
+
+    /// <summary>
+    /// Maximum number of meteors per wave.
+    /// </summary>
+    [DataField]
+    public int MaxMeteorsPerWave = 8;
+
+    /// <summary>
+    /// Meteor prototype IDs to spawn. If empty, nothing happens.
+    /// </summary>
+    [DataField]
+    public List<string> MeteorPrototypes = new();
+
+    /// <summary>
+    /// Base meteor velocity (applied as impulse) in m/s.
+    /// </summary>
+    [DataField]
+    public float MeteorVelocity = 10f;
+
+    /// <summary>
+    /// Additional distance beyond grid bounds for meteor spawn ring.
+    /// </summary>
+    [DataField]
+    public float SpawnRingPadding = 50f;
+
+    /// <summary>
+    /// How far from players (in meters) meteors must spawn to avoid popping into view.
+    /// </summary>
+    [DataField]
+    public float PlayerVisibilityRadius = 40f;
+}
+
+/// <summary>
 /// Defines a space biome with its display name and map color.
 /// </summary>
 [Prototype("spaceFactionBiome")]
@@ -200,4 +267,10 @@ public sealed class SpaceBiomePrototype : IPrototype
     /// </summary>
     [DataField]
     public BiomeEmpStormPrototype? EmpStorm;
+
+    /// <summary>
+    /// Optional meteor storm behavior for this biome.
+    /// </summary>
+    [DataField]
+    public BiomeMeteorStormPrototype? MeteorStorm;
 }

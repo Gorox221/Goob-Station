@@ -20,10 +20,21 @@
   description: "Каменные глыбы дрейфуют в тишине"
   swapDuration: 2
   mapColor: "#CC8833"
-  spawns:
-    - entity: NukeDisk
-      interval: 150
-      enabled: true
+  spawns: []
+  meteorStorm:
+    enabled: true
+    intervalMin: 5
+    intervalMax: 20
+    playerActivationRange: 100
+    minMeteorsPerWave: 1
+    maxMeteorsPerWave: 6
+    meteorPrototypes:
+      - MeteorSmall
+      - MeteorMedium
+      - MeteorLarge
+    meteorVelocity: 12
+    spawnRingPadding: 80
+    playerVisibilityRadius: 45
 
 # Debris field biome — dim gray
 - type: spaceFactionBiome
