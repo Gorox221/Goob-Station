@@ -35,7 +35,7 @@ public sealed class PortableBiomeSurveyorSystem : EntitySystem
             return;
 
         var userPos = _transform.GetMapCoordinates(args.User);
-        if (!_spaceBiomes.TryGetBiomeSourceAt(userPos.Position, out var sourceEnt))
+        if (!_spaceBiomes.TryGetBiomeSourceAt(userPos.MapId, userPos.Position, out var sourceEnt))
         {
             _popup.PopupEntity(Loc.GetString("portable-biome-surveyor-no-biome"), ent, args.User);
             return;
@@ -76,7 +76,7 @@ public sealed class PortableBiomeSurveyorSystem : EntitySystem
 
         var user = args.Args.User;
         var userPos = _transform.GetMapCoordinates(user);
-        if (!_spaceBiomes.TryGetBiomeSourceAt(userPos.Position, out var currentSource))
+        if (!_spaceBiomes.TryGetBiomeSourceAt(userPos.MapId, userPos.Position, out var currentSource))
         {
             _popup.PopupEntity(Loc.GetString("portable-biome-surveyor-no-biome"), ent, user);
             return;

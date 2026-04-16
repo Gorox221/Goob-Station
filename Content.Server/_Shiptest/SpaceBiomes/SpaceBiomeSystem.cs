@@ -3,6 +3,7 @@ using Content.Server.Station.Components;
 using Content.Server.Station.Systems;
 using Content.Shared._Shiptest.SpaceBiomes;
 using Robust.Server.GameObjects;
+using Robust.Shared.Map;
 using Robust.Shared.Maths;
 using Robust.Shared.Prototypes;
 using TransformSystem = Robust.Server.GameObjects.TransformSystem;
@@ -14,16 +15,42 @@ namespace Content.Server._Shiptest.SpaceBiomes;
 /// </summary>
 internal static class SpaceBiomeHelpers
 {
+    public const float BiomeHalfSize = SpaceBiomeGridCellComponent.CellSize / 2f; // 750 (1500x1500)
+
     public static bool RectCircleIntersect(Box2 rect, Vector2 circPos, float circRadius)
     {
-        Vector2 delta = circPos - rect.Center;
-        if (delta.X > rect.Width / 2 + circRadius || delta.Y > rect.Height / 2 + circRadius)
+        var delta = circPos - rect.Center;
+        var absDelta = new Vector2(MathF.Abs(delta.X), MathF.Abs(delta.Y));
+        if (absDelta.X > rect.Width / 2 + circRadius || absDelta.Y > rect.Height / 2 + circRadius)
             return false;
-        if (delta.X < rect.Width / 2 || delta.Y < rect.Height / 2)
+        if (absDelta.X < rect.Width / 2 || absDelta.Y < rect.Height / 2)
             return true;
-        delta.X -= rect.Width / 2;
-        delta.Y -= rect.Height / 2;
-        return delta.Length() < circRadius;
+
+        var cornerDelta = absDelta - new Vector2(rect.Width / 2, rect.Height / 2);
+        return cornerDelta.Length() < circRadius;
+    }
+
+    public static bool IsPointInBiome(Vector2 relativePos)
+    {
+        return MathF.Abs(relativePos.X) <= BiomeHalfSize &&
+               MathF.Abs(relativePos.Y) <= BiomeHalfSize;
+    }
+
+    public static float GetEffectiveRadius()
+    {
+        return BiomeHalfSize * MathF.Sqrt(2f);
+    }
+
+    public static float GetCoverageRadius()
+    {
+        return GetEffectiveRadius();
+    }
+
+    public static bool IntersectsBiomeInfluence(Vector2 sourcePos, Box2 targetAabb)
+    {
+        var half = BiomeHalfSize;
+        var biomeAabb = new Box2(sourcePos - new Vector2(half, half), sourcePos + new Vector2(half, half));
+        return biomeAabb.Intersects(targetAabb);
     }
 }
 
@@ -66,7 +93,8 @@ public sealed class SpaceBiomeSystem : EntitySystem
     public void RegisterBiomeSource(EntityUid uid, SpaceBiomeSourceComponent source)
     {
         var pos = _transform.GetWorldPosition(uid);
-        foreach (var chunkPos in GetCoveredChunks(pos, source.SwapDistance))
+        var coverageRadius = SpaceBiomeHelpers.GetCoverageRadius();
+        foreach (var chunkPos in GetCoveredChunks(pos, coverageRadius))
         {
             if (!_chunks.TryGetValue(chunkPos, out var sources))
                 _chunks[chunkPos] = sources = new HashSet<EntityUid>();
@@ -77,7 +105,8 @@ public sealed class SpaceBiomeSystem : EntitySystem
     public void UnregisterBiomeSource(EntityUid uid, SpaceBiomeSourceComponent source)
     {
         var pos = _transform.GetWorldPosition(uid);
-        foreach (var chunkPos in GetCoveredChunks(pos, source.SwapDistance))
+        var coverageRadius = SpaceBiomeHelpers.GetCoverageRadius();
+        foreach (var chunkPos in GetCoveredChunks(pos, coverageRadius))
         {
             if (!_chunks.TryGetValue(chunkPos, out var sources))
                 continue;
@@ -93,11 +122,11 @@ public sealed class SpaceBiomeSystem : EntitySystem
         return (pos / ChunkSize).Floored() * ChunkSize;
     }
 
-    private static List<Vector2> GetCoveredChunks(Vector2 pos, int radius)
+    private static List<Vector2> GetCoveredChunks(Vector2 pos, float radius)
     {
         var result = new List<Vector2>();
         var posFloor = GetChunkKey(pos);
-        var chunks = (radius + ChunkSize - 1) / ChunkSize; // ceiling division
+        var chunks = (int) MathF.Ceiling(radius / ChunkSize);
 
         for (var y = -chunks; y <= chunks; y++)
         {
@@ -118,9 +147,9 @@ public sealed class SpaceBiomeSystem : EntitySystem
     /// Gets the biome ID at a given world position.
     /// Returns the highest-priority biome that contains this position.
     /// </summary>
-    public string GetBiomeAt(Vector2 worldPos)
+    public string GetBiomeAt(MapId mapId, Vector2 worldPos)
     {
-        if (!TryGetBiomeSourceAt(worldPos, out var biomeSource))
+        if (!TryGetBiomeSourceAt(mapId, worldPos, out var biomeSource))
             return "default";
 
         return biomeSource.Comp.Biome;
@@ -129,7 +158,7 @@ public sealed class SpaceBiomeSystem : EntitySystem
     /// <summary>
     /// Gets the highest-priority biome source at the given world position.
     /// </summary>
-    public bool TryGetBiomeSourceAt(Vector2 worldPos, out Entity<SpaceBiomeSourceComponent> biomeSource)
+    public bool TryGetBiomeSourceAt(MapId mapId, Vector2 worldPos, out Entity<SpaceBiomeSourceComponent> biomeSource)
     {
         biomeSource = default;
         var chunkKey = GetChunkKey(worldPos);
@@ -142,12 +171,14 @@ public sealed class SpaceBiomeSystem : EntitySystem
 
         foreach (var sourceUid in sourceUids)
         {
-            if (!TryComp<SpaceBiomeSourceComponent>(sourceUid, out var source))
+            if (!TryComp<SpaceBiomeSourceComponent>(sourceUid, out var source) ||
+                !TryComp<TransformComponent>(sourceUid, out var sourceXform) ||
+                sourceXform.MapID != mapId)
                 continue;
 
             var sourcePos = _transform.GetWorldPosition(sourceUid);
             var relativePos = worldPos - sourcePos;
-            if (!source.ContainsPoint(relativePos))
+            if (!SpaceBiomeHelpers.IsPointInBiome(relativePos))
                 continue;
 
             if (source.Priority < bestPriority)
@@ -169,9 +200,9 @@ public sealed class SpaceBiomeSystem : EntitySystem
     /// Checks if scanning is blocked at a given world position.
     /// Returns true if the position is inside a biome that has BlocksScanning = true.
     /// </summary>
-    public bool IsScanningBlocked(Vector2 worldPos)
+    public bool IsScanningBlocked(MapId mapId, Vector2 worldPos)
     {
-        var biomeId = GetBiomeAt(worldPos);
+        var biomeId = GetBiomeAt(mapId, worldPos);
         if (biomeId == "default")
             return false;
 

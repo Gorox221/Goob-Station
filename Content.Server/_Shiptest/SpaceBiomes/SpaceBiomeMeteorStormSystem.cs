@@ -135,7 +135,7 @@ public sealed class SpaceBiomeMeteorStormSystem : EntitySystem
             if (!IsBiomeActive(sourceState.SourceUid, sourceXform.MapID, source.SwapDistance, sourceState.Storm.PlayerActivationRange))
                 continue;
 
-            SpawnWaveTowardsNearestGrid(source, sourceXform, sourceState.Storm);
+            SpawnWaveTowardsNearestGrid(sourceState.SourceUid, source, sourceXform, sourceState.Storm);
         }
     }
 
@@ -187,7 +187,8 @@ public sealed class SpaceBiomeMeteorStormSystem : EntitySystem
     private bool IsBiomeActive(EntityUid sourceUid, MapId mapId, int sourceRadius, float playerActivationRange)
     {
         var sourcePos = _transform.GetWorldPosition(sourceUid);
-        var activationRadius = sourceRadius + playerActivationRange;
+        var effectiveRadius = SpaceBiomeHelpers.GetEffectiveRadius();
+        var activationRadius = effectiveRadius + playerActivationRange;
 
         foreach (var session in _playerMan.Sessions)
         {
@@ -207,6 +208,7 @@ public sealed class SpaceBiomeMeteorStormSystem : EntitySystem
     }
 
     private void SpawnWaveTowardsNearestGrid(
+        EntityUid sourceUid,
         SpaceBiomeSourceComponent source,
         TransformComponent sourceXform,
         BiomeMeteorStormPrototype storm)
@@ -230,7 +232,7 @@ public sealed class SpaceBiomeMeteorStormSystem : EntitySystem
 
             var worldAabb = _transform.GetWorldMatrix(gridXform).TransformBox(gridComp.LocalAABB);
 
-            if (!SpaceBiomeHelpers.RectCircleIntersect(worldAabb, biomePos, source.SwapDistance))
+            if (!SpaceBiomeHelpers.IntersectsBiomeInfluence(biomePos, worldAabb))
                 continue;
 
             var dist = (worldAabb.Center - biomePos).Length();
@@ -352,5 +354,6 @@ public sealed class SpaceBiomeMeteorStormSystem : EntitySystem
         var max = Math.Max(min, storm.IntervalMax);
         return _random.NextFloat(min, max);
     }
+
 }
 

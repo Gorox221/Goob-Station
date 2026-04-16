@@ -543,8 +543,8 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
             return new NavInterfaceState(SharedRadarConsoleSystem.DefaultMaxRange, GetNetCoordinates(coordinates), angle, docks, InertiaDampeningMode.Dampen);
 
         // Check if console is in a biome that blocks scanning (e.g., NebulaSpace)
-        var consoleWorldPos = _transform.ToMapCoordinates(coordinates).Position;
-        var scanningBlocked = _biomeSystem.IsScanningBlocked(consoleWorldPos);
+        var consoleMapPos = _transform.ToMapCoordinates(coordinates);
+        var scanningBlocked = _biomeSystem.IsScanningBlocked(consoleMapPos.MapId, consoleMapPos.Position);
 
         if (scanningBlocked)
         {
@@ -617,23 +617,8 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
             if (offset.Length() > source.SwapDistance * 3f)
                 continue;
 
-            // Check if this is a grid-based biome (square)
-            var isGridBiome = HasComp<SpaceBiomeGridCellComponent>(uid);
-            
-            // Generate boundary line segments (square or organic)
-            var boundaryLines = isGridBiome 
-                ? GenerateSquareBoundaryLines(source)
-                : GenerateBiomeBoundaryLines(source, BoundaryResolution);
-            
-            // For grid biomes, also generate fill vertices
-            if (isGridBiome)
-            {
-                fillList.Add(GenerateSquareFillVertices(source));
-            }
-            else
-            {
-                fillList.Add(Array.Empty<Vector2>());
-            }
+            var boundaryLines = GenerateSquareBoundaryLines(source);
+            fillList.Add(GenerateSquareFillVertices(source));
             
             linesList.Add(boundaryLines);
             coordsList.Add(GetNetCoordinates(xform.Coordinates));
@@ -681,8 +666,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
     /// </summary>
     private static Vector2[] GenerateSquareBoundaryLines(SpaceBiomeSourceComponent source)
     {
-        // For grid biomes, SwapDistance is half the cell size (750m)
-        var halfSize = source.SwapDistance;
+        var halfSize = SpaceBiomeHelpers.BiomeHalfSize;
 
         // Square corners (counter-clockwise from top-left)
         var topLeft = new Vector2(-halfSize, -halfSize);
@@ -706,7 +690,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
     /// </summary>
     private static Vector2[] GenerateSquareFillVertices(SpaceBiomeSourceComponent source)
     {
-        var halfSize = source.SwapDistance;
+        var halfSize = SpaceBiomeHelpers.BiomeHalfSize;
 
         // Return 4 corners (counter-clockwise from top-left)
         return new Vector2[]
@@ -779,8 +763,8 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
         var scanningBlocked = false;
         if (consoleCoords.HasValue)
         {
-            var consoleWorldPos = _transform.ToMapCoordinates(consoleCoords.Value).Position;
-            scanningBlocked = _biomeSystem.IsScanningBlocked(consoleWorldPos);
+            var consoleMapPos = _transform.ToMapCoordinates(consoleCoords.Value);
+            scanningBlocked = _biomeSystem.IsScanningBlocked(consoleMapPos.MapId, consoleMapPos.Position);
         }
 
         if (scanningBlocked)
@@ -841,20 +825,9 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
                 continue;
 
             var netCoords = GetNetCoordinates(xform.Coordinates);
-            var avgRadius = source.SwapDistance;
-
-            // Check if this is a grid-based biome (square)
-            var isGridBiome = HasComp<SpaceBiomeGridCellComponent>(uid);
-
-            // Generate boundary line segments (square or organic)
-            var boundaryLines = isGridBiome
-                ? GenerateSquareBoundaryLines(source)
-                : GenerateBiomeBoundaryLines(source, BoundaryResolution);
-
-            // For grid biomes, also generate fill vertices for colored rendering
-            Vector2[]? fillVertices = isGridBiome
-                ? GenerateSquareFillVertices(source)
-                : null;
+            var avgRadius = SpaceBiomeHelpers.GetEffectiveRadius();
+            var boundaryLines = GenerateSquareBoundaryLines(source);
+            Vector2[]? fillVertices = GenerateSquareFillVertices(source);
 
             biomeZones ??= new List<BiomeZoneObject>();
             biomeZones.Add(new BiomeZoneObject(

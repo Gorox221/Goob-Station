@@ -82,7 +82,7 @@ public sealed class SpaceBiomeParallaxSystem : EntitySystem
             if (mapId == MapId.Nullspace)
                 continue;
 
-            var biomeId = _spaceBiomes.GetBiomeAt(mapCoords.Position);
+            var biomeId = _spaceBiomes.GetBiomeAt(mapId, mapCoords.Position);
             var parallaxId = GetParallaxForBiome(biomeId);
 
             if (!TryComp<BiomeParallaxComponent>(playerUid, out var biomeParallax))

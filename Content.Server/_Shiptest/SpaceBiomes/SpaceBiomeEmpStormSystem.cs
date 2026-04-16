@@ -134,7 +134,7 @@ public sealed class SpaceBiomeEmpStormSystem : EntitySystem
             if (!IsBiomeActive(sourceState.SourceUid, sourceXform.MapID, source.SwapDistance, sourceState.Storm.PlayerActivationRange))
                 continue;
 
-            PulseRandomGridFromBiome(source, sourceXform, sourceState.Storm);
+            PulseRandomGridFromBiome(sourceState.SourceUid, source, sourceXform, sourceState.Storm);
         }
     }
 
@@ -183,7 +183,8 @@ public sealed class SpaceBiomeEmpStormSystem : EntitySystem
     private bool IsBiomeActive(EntityUid sourceUid, MapId mapId, int sourceRadius, float playerActivationRange)
     {
         var sourcePos = _transform.GetWorldPosition(sourceUid);
-        var activationRadius = sourceRadius + playerActivationRange;
+        var effectiveRadius = SpaceBiomeHelpers.GetEffectiveRadius();
+        var activationRadius = effectiveRadius + playerActivationRange;
 
         foreach (var session in _playerMan.Sessions)
         {
@@ -203,6 +204,7 @@ public sealed class SpaceBiomeEmpStormSystem : EntitySystem
     }
 
     private void PulseRandomGridFromBiome(
+        EntityUid sourceUid,
         SpaceBiomeSourceComponent source,
         TransformComponent sourceXform,
         BiomeEmpStormPrototype storm)
@@ -222,7 +224,7 @@ public sealed class SpaceBiomeEmpStormSystem : EntitySystem
             }
 
             var gridAabb = _transform.GetWorldMatrix(gridXform).TransformBox(gridComp.LocalAABB);
-            if (!SpaceBiomeHelpers.RectCircleIntersect(gridAabb, sourcePos, source.SwapDistance))
+            if (!SpaceBiomeHelpers.IntersectsBiomeInfluence(sourcePos, gridAabb))
                 continue;
 
             _candidateGrids.Add(gridUid);
@@ -266,5 +268,6 @@ public sealed class SpaceBiomeEmpStormSystem : EntitySystem
         var max = Math.Max(min, storm.IntervalMax);
         return _random.NextFloat(min, max);
     }
+
 }
 
