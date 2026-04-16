@@ -93,6 +93,67 @@ public sealed partial class BiomeLightningStormPrototype
 }
 
 /// <summary>
+/// Configures periodic EMP pulses for a biome.
+/// </summary>
+[DataDefinition]
+public sealed partial class BiomeEmpStormPrototype
+{
+    /// <summary>
+    /// Enables or disables EMP pulses for this biome.
+    /// </summary>
+    [DataField]
+    public bool Enabled = false;
+
+    /// <summary>
+    /// Minimum time between EMP pulse attempts in seconds.
+    /// </summary>
+    [DataField]
+    public float IntervalMin = 6f;
+
+    /// <summary>
+    /// Maximum time between EMP pulse attempts in seconds.
+    /// </summary>
+    [DataField]
+    public float IntervalMax = 12f;
+
+    /// <summary>
+    /// Extra radius around biome center where nearby players activate EMP processing.
+    /// </summary>
+    [DataField]
+    public float PlayerActivationRange = 250f;
+
+    /// <summary>
+    /// Minimum number of EMP pulses per trigger.
+    /// </summary>
+    [DataField]
+    public int MinPulses = 1;
+
+    /// <summary>
+    /// Maximum number of EMP pulses per trigger.
+    /// </summary>
+    [DataField]
+    public int MaxPulses = 2;
+
+    /// <summary>
+    /// EMP pulse radius.
+    /// </summary>
+    [DataField]
+    public float PulseRadius = 6f;
+
+    /// <summary>
+    /// EMP energy consumption value used by EmpSystem.
+    /// </summary>
+    [DataField]
+    public float EnergyConsumption = 20000f;
+
+    /// <summary>
+    /// EMP disabled duration in seconds.
+    /// </summary>
+    [DataField]
+    public float DisableDuration = 10f;
+}
+
+/// <summary>
 /// Defines a space biome with its display name and map color.
 /// </summary>
 [Prototype("spaceFactionBiome")]
@@ -133,4 +194,10 @@ public sealed class SpaceBiomePrototype : IPrototype
     /// </summary>
     [DataField]
     public BiomeLightningStormPrototype? LightningStorm;
+
+    /// <summary>
+    /// Optional EMP storm behavior for this biome.
+    /// </summary>
+    [DataField]
+    public BiomeEmpStormPrototype? EmpStorm;
 }

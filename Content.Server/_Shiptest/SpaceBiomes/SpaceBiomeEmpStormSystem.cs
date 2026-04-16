@@ -1,7 +1,7 @@
 using System.Numerics;
+using Content.Server.Emp;
 using Content.Server.GameTicking;
 using Content.Server.GameTicking.Events;
-using Content.Server.Lightning;
 using Content.Shared.GameTicking;
 using Content.Shared._Shiptest.SpaceBiomes;
 using Robust.Server.GameObjects;
@@ -16,41 +16,44 @@ using TransformSystem = Robust.Server.GameObjects.TransformSystem;
 
 namespace Content.Server._Shiptest.SpaceBiomes;
 
-internal sealed class StormSourceState
+internal sealed class EmpStormSourceState
 {
     public EntityUid SourceUid;
-    public BiomeLightningStormPrototype Storm = default!;
-    public TimeSpan NextStrike;
+    public BiomeEmpStormPrototype Storm = default!;
+    public TimeSpan NextPulse;
 }
 
 /// <summary>
-/// Handles electric storm biome behavior by striking nearby grids with lightning.
-/// Configured in spaceFactionBiome.lightningStorm.
+/// Applies EMP pulses for configured space biomes.
+/// Data-driven through spaceFactionBiome.empStorm in prototypes.
 /// </summary>
-public sealed class SpaceBiomeLightningStormSystem : EntitySystem
+public sealed class SpaceBiomeEmpStormSystem : EntitySystem
 {
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly IMapManager _mapManager = default!;
     [Dependency] private readonly IPlayerManager _playerMan = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
     [Dependency] private readonly TransformSystem _transform = default!;
-    [Dependency] private readonly LightningSystem _lightning = default!;
+    [Dependency] private readonly EmpSystem _emp = default!;
     [Dependency] private readonly GameTicker _gameTicker = default!;
     [Dependency] private readonly IPrototypeManager _prototype = default!;
 
-    private readonly List<StormSourceState> _stormSources = new();
+    private readonly List<EmpStormSourceState> _empStormSources = new();
     private readonly Dictionary<MapId, List<EntityUid>> _mapGrids = new();
     private readonly List<EntityUid> _candidateGrids = new();
 
     private TimeSpan _nextUpdate;
     private TimeSpan _nextGridCacheRefresh;
     private bool _sourcesDirty = true;
-    private int _lightningSourceIndex;
+    private int _empSourceIndex;
 
     // Storm updates are coarse and sampled to avoid full scans every frame.
     private static readonly TimeSpan UpdateInterval = TimeSpan.FromSeconds(1.0);
     private static readonly TimeSpan GridCacheRefreshInterval = TimeSpan.FromSeconds(5.0);
     private const int MaxSourcesPerUpdate = 10;
+
+    // Hard clamp to prevent a badly configured prototype from nuking performance.
+    private const int MaxPulsesPerTrigger = 8;
 
     public override void Initialize()
     {
@@ -63,17 +66,17 @@ public sealed class SpaceBiomeLightningStormSystem : EntitySystem
     private void OnRoundStarted(RoundStartedEvent ev)
     {
         _sourcesDirty = true;
-        _lightningSourceIndex = 0;
+        _empSourceIndex = 0;
         _nextUpdate = _timing.CurTime;
         _nextGridCacheRefresh = _timing.CurTime;
     }
 
     private void OnRoundRestartCleanup(RoundRestartCleanupEvent ev)
     {
-        _stormSources.Clear();
+        _empStormSources.Clear();
         _mapGrids.Clear();
         _sourcesDirty = true;
-        _lightningSourceIndex = 0;
+        _empSourceIndex = 0;
     }
 
     public override void Update(float frameTime)
@@ -90,7 +93,7 @@ public sealed class SpaceBiomeLightningStormSystem : EntitySystem
         _nextUpdate = now + UpdateInterval;
 
         if (_sourcesDirty)
-            RebuildStormSources();
+            RebuildEmpStormSources();
 
         if (now >= _nextGridCacheRefresh)
         {
@@ -98,25 +101,25 @@ public sealed class SpaceBiomeLightningStormSystem : EntitySystem
             _nextGridCacheRefresh = now + GridCacheRefreshInterval;
         }
 
-        ProcessLightningStorms(now);
+        ProcessEmpStorms(now);
     }
 
-    private void ProcessLightningStorms(TimeSpan now)
+    private void ProcessEmpStorms(TimeSpan now)
     {
-        if (_stormSources.Count == 0)
+        if (_empStormSources.Count == 0)
             return;
 
         var processed = 0;
-        while (processed < MaxSourcesPerUpdate && _stormSources.Count > 0)
+        while (processed < MaxSourcesPerUpdate && _empStormSources.Count > 0)
         {
-            if (_lightningSourceIndex >= _stormSources.Count)
-                _lightningSourceIndex = 0;
+            if (_empSourceIndex >= _empStormSources.Count)
+                _empSourceIndex = 0;
 
-            var sourceState = _stormSources[_lightningSourceIndex];
-            _lightningSourceIndex++;
+            var sourceState = _empStormSources[_empSourceIndex];
+            _empSourceIndex++;
             processed++;
 
-            if (now < sourceState.NextStrike)
+            if (now < sourceState.NextPulse)
                 continue;
 
             if (!TryComp<SpaceBiomeSourceComponent>(sourceState.SourceUid, out var source) ||
@@ -126,36 +129,37 @@ public sealed class SpaceBiomeLightningStormSystem : EntitySystem
                 continue;
             }
 
-            sourceState.NextStrike = now + TimeSpan.FromSeconds(GetNextInterval(sourceState.Storm));
+            sourceState.NextPulse = now + TimeSpan.FromSeconds(GetNextInterval(sourceState.Storm));
 
             if (!IsBiomeActive(sourceState.SourceUid, sourceXform.MapID, source.SwapDistance, sourceState.Storm.PlayerActivationRange))
                 continue;
 
-            StrikeRandomGridFromBiome(sourceState.SourceUid, source, sourceXform, sourceState.Storm);
+            PulseRandomGridFromBiome(source, sourceXform, sourceState.Storm);
         }
     }
 
-    private void RebuildStormSources()
+    private void RebuildEmpStormSources()
     {
-        _stormSources.Clear();
+        _empStormSources.Clear();
         var query = EntityQueryEnumerator<SpaceBiomeSourceComponent>();
+
         while (query.MoveNext(out var uid, out var source))
         {
             if (!_prototype.TryIndex<SpaceBiomePrototype>(source.Biome, out var biomeProto))
                 continue;
 
-            if (biomeProto.LightningStorm is { Enabled: true } lightningStorm)
+            if (biomeProto.EmpStorm is { Enabled: true } empStorm)
             {
-                _stormSources.Add(new StormSourceState
+                _empStormSources.Add(new EmpStormSourceState
                 {
                     SourceUid = uid,
-                    Storm = lightningStorm,
-                    NextStrike = _timing.CurTime + TimeSpan.FromSeconds(GetNextInterval(lightningStorm)),
+                    Storm = empStorm,
+                    NextPulse = _timing.CurTime + TimeSpan.FromSeconds(GetNextInterval(empStorm)),
                 });
             }
         }
 
-        _lightningSourceIndex = 0;
+        _empSourceIndex = 0;
         _sourcesDirty = false;
     }
 
@@ -198,11 +202,10 @@ public sealed class SpaceBiomeLightningStormSystem : EntitySystem
         return false;
     }
 
-    private void StrikeRandomGridFromBiome(
-        EntityUid sourceUid,
+    private void PulseRandomGridFromBiome(
         SpaceBiomeSourceComponent source,
         TransformComponent sourceXform,
-        BiomeLightningStormPrototype storm)
+        BiomeEmpStormPrototype storm)
     {
         if (!_mapGrids.TryGetValue(sourceXform.MapID, out var mapGrids) || mapGrids.Count == 0)
             return;
@@ -229,24 +232,35 @@ public sealed class SpaceBiomeLightningStormSystem : EntitySystem
             return;
 
         var targetGrid = _random.Pick(_candidateGrids);
+        if (!TryComp<MapGridComponent>(targetGrid, out var targetGridComp) ||
+            !TryComp<TransformComponent>(targetGrid, out var targetGridXform))
+        {
+            return;
+        }
 
-        // Visual strike from storm source to selected grid.
-        _lightning.ShootLightning(sourceUid, targetGrid, storm.LightningPrototype);
+        var minPulses = Math.Max(1, storm.MinPulses);
+        var maxPulses = Math.Max(minPulses, storm.MaxPulses);
+        maxPulses = Math.Min(maxPulses, MaxPulsesPerTrigger);
+        var pulses = _random.Next(minPulses, maxPulses + 1);
 
-        // Then arc inside the grid area to actual lightning targets.
-        var minBolts = Math.Max(1, storm.MinBolts);
-        var maxBolts = Math.Max(minBolts, storm.MaxBolts);
-        var bolts = _random.Next(minBolts, maxBolts + 1);
-        _lightning.ShootRandomLightnings(
-            targetGrid,
-            Math.Max(0.5f, storm.ArcRangeOnGrid),
-            bolts,
-            storm.LightningPrototype,
-            arcDepth: Math.Max(0, storm.ArcDepth),
-            ignoredEntity: sourceUid);
+        var pulseRadius = Math.Max(0.5f, storm.PulseRadius);
+        var energy = Math.Max(0f, storm.EnergyConsumption);
+        var duration = Math.Max(0f, storm.DisableDuration);
+
+        var worldMatrix = _transform.GetWorldMatrix(targetGridXform);
+
+        for (var i = 0; i < pulses; i++)
+        {
+            var localPoint = new Vector2(
+                _random.NextFloat(targetGridComp.LocalAABB.Left, targetGridComp.LocalAABB.Right),
+                _random.NextFloat(targetGridComp.LocalAABB.Bottom, targetGridComp.LocalAABB.Top));
+
+            var worldPoint = Vector2.Transform(localPoint, worldMatrix);
+            _emp.EmpPulse(new MapCoordinates(worldPoint, targetGridXform.MapID), pulseRadius, energy, duration);
+        }
     }
 
-    private float GetNextInterval(BiomeLightningStormPrototype storm)
+    private float GetNextInterval(BiomeEmpStormPrototype storm)
     {
         var min = Math.Max(0.1f, storm.IntervalMin);
         var max = Math.Max(min, storm.IntervalMax);

@@ -64,10 +64,17 @@
   description: "Заряженные частицы бушуют в этом секторе"
   swapDuration: 2
   mapColor: "#00CCAA"
-  spawns:
-    - entity: InvisibleTesla
-      interval: 8
-      enabled: true
+  spawns: []
+  empStorm:
+    enabled: true
+    intervalMin: 6
+    intervalMax: 12
+    playerActivationRange: 250
+    minPulses: 1
+    maxPulses: 2
+    pulseRadius: 8
+    energyConsumption: 30000
+    disableDuration: 12
 
 ---
 # Entity prototypes for biome sources
