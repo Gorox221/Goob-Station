@@ -32,6 +32,7 @@
   - ClothingHeadHatWelding
   - ClothingHeadHatCone
   - WeaponHammer
+  - PortableBiomeSurveyor
 
 - type: latheRecipePack
   id: AtmosStatic
