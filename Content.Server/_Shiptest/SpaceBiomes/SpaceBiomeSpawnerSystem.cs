@@ -645,13 +645,12 @@ public sealed class SpaceBiomeSpawnerSystem : EntitySystem
     /// </summary>
     private void SpawnBiomeEntity(SpawnedBiomeSource source, MapId mapId)
     {
-        var sourceId = source.BiomeId switch
+        var sourceId = $"SpaceBiomeSource{source.BiomeId}";
+        if (!_protoMan.HasIndex<EntityPrototype>(sourceId))
         {
-            "AsteroidBelt" => "SpaceBiomeSourceAsteroidBelt",
-            "DebrisField" => "SpaceBiomeSourceDebrisField",
-            "AnomalousSpace" => "SpaceBiomeSourceAnomalousSpace",
-            _ => "SpaceBiomeSourceDefault"
-        };
+            _sawmill.Warning($"Biome source prototype '{sourceId}' not found for biome '{source.BiomeId}', using default source.");
+            sourceId = "SpaceBiomeSourceDefault";
+        }
 
         var uid = Spawn(sourceId, new MapCoordinates(source.Position, mapId));
 

@@ -38,9 +38,9 @@
     spawnRingPadding: 80
     playerVisibilityRadius: 45
 
-# Debris field biome — dim gray
+# Electric storm biome — dim gray
 - type: spaceFactionBiome
-  id: DebrisField
+  id: ElectricStorm
   parallax: Default
   researchPoints: 3000
   name: "Электрический шторм"
@@ -116,11 +116,11 @@
       priority: 0
 
 - type: entity
-  id: SpaceBiomeSourceDebrisField
-  name: debris field biome source
+  id: SpaceBiomeSourceElectricStorm
+  name: electric storm biome source
   components:
     - type: SpaceBiomeSource
-      biome: DebrisField
+      biome: ElectricStorm
       swapDistance: 400
       priority: 0
 

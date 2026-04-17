@@ -17,10 +17,10 @@ namespace Content.Server._Shiptest.SpaceBiomes;
 /// Each cell is 1500x1500 meters square.
 /// 
 /// Layout:
-/// - Center 5x5 (indices 7-11): Always empty (station location)
-/// - First orbit (indices 3 and 15): 60% asteroids, 30% nebula, 10% empty
-/// - Second orbit (indices 0 and 18): 60% asteroids, 30% nebula, 10% empty
-/// - Between orbits and outer edges: carp/ion storms, less frequent than empty space
+/// - Center circle: Always empty (station location)
+/// - First orbit ring: 60% asteroids, 30% nebula, 10% empty
+/// - Second orbit ring: 60% asteroids, 30% nebula, 10% empty
+/// - Between/around rings: carp/ion storms, less frequent than empty space
 /// </summary>
 public sealed class SpaceBiomeGridSystem : EntitySystem
 {
@@ -42,29 +42,21 @@ public sealed class SpaceBiomeGridSystem : EntitySystem
     private const int GridSize = SpaceBiomeGridCellComponent.GridSize;
 
     /// <summary>
-    /// Center zone: indices 7-11 (5x5 cells centered on the station).
+    /// Circular band thresholds measured in "cell units" from station center.
+    /// Using cell centers avoids square-looking orbital rings.
     /// </summary>
-    private const int CenterStart = SpaceBiomeGridCellComponent.CenterZoneStart;
-    private const int CenterEnd = SpaceBiomeGridCellComponent.CenterZoneEnd;
-
-    /// <summary>
-    /// First orbit: indices 3 and 15 (2 cells away from center zone border through 1 empty cell).
-    /// </summary>
-    private const int FirstOrbitInner = 3;
-    private const int FirstOrbitOuter = 15;
-
-    /// <summary>
-    /// Second orbit: indices 0 and 18 (edge of grid).
-    /// </summary>
-    private const int SecondOrbitInner = 0;
-    private const int SecondOrbitOuter = 18;
+    private const float CenterEmptyRadiusCells = 2.5f;
+    private const float FirstOrbitInnerRadiusCells = 3.5f;
+    private const float FirstOrbitOuterRadiusCells = 4.5f;
+    private const float SecondOrbitInnerRadiusCells = 6.5f;
+    private const float SecondOrbitOuterRadiusCells = 7.5f;
 
     /// <summary>
     /// Spawn probabilities for first/second orbit.
     /// </summary>
-    private const float OrbitAsteroidChance = 0.60f;
-    private const float OrbitNebulaChance = 0.30f;
-    // Remaining 10% is empty space
+    private const float OrbitAsteroidChance = 0.40f;
+    private const float OrbitNebulaChance = 0.40f;
+    // Remaining 20% is empty space
 
     /// <summary>
     /// Spawn probabilities for inter-orbit and outer regions.
@@ -145,80 +137,46 @@ public sealed class SpaceBiomeGridSystem : EntitySystem
     /// </summary>
     private string? DetermineBiomeForCell(int x, int y)
     {
-        // Center 5x5 zone: always empty (station location)
-        // Indices 7-11 on both axes
-        if (IsInCenterZone(x, y))
+        var radialDistance = CalculateRadialDistanceFromCenter(x, y);
+
+        // Circular empty center around station.
+        if (radialDistance <= CenterEmptyRadiusCells)
         {
-            return null; // Empty - station here
+            return null;
         }
 
-        // Calculate minimum Chebyshev distance from center zone border
-        // Center zone border is at indices 6 (inner edge before 7) and 12 (outer edge after 11)
-        var distFromCenter = CalculateDistanceFromCenterZoneBorder(x, y);
-
-        // First orbit: through 1 empty cell from center zone
-        // Center zone border at index 6, so 1 cell gap = index 5
-        // Also index 13 on the other side (border at 12, gap at 13)
-        if (distFromCenter == 1)
+        // First circular orbital band.
+        if (radialDistance >= FirstOrbitInnerRadiusCells && radialDistance < FirstOrbitOuterRadiusCells)
         {
-            return RollOrbitBiome(); // 60% asteroids, 30% nebula, 10% empty
+            return RollOrbitBiome();
         }
 
-        // Second orbit: through 2 cells from first orbit
-        // First orbit at index 5, so 2 cells gap = indices 4,3 -> orbit at index 2
-        // Also index 15 on the other side (first orbit at 13, gap at 14,15 -> orbit at 16)
-        if (distFromCenter == 4)
+        // Second circular orbital band.
+        if (radialDistance >= SecondOrbitInnerRadiusCells && radialDistance < SecondOrbitOuterRadiusCells)
         {
-            return RollOrbitBiome(); // 60% asteroids, 30% nebula, 10% empty
+            return RollOrbitBiome();
         }
 
-        // Between orbits (indices 3-4, 14-15) and outer regions (indices 0-1, 17-18)
-        // Spawn carp/ion storms less frequently than empty space
-        return RollOuterBiome(); // 20% storms, 80% empty
+        // Between rings and in the far outer region.
+        return RollOuterBiome();
     }
 
     /// <summary>
-    /// Calculates minimum Chebyshev distance from cell to center zone border.
-    /// Center zone is indices 7-11, so border is at index 6 (inner) and 12 (outer).
-    /// Returns:
-    ///   0 = inside center zone
-    ///   1 = first orbit position (index 5 or 13)
-    ///   4 = second orbit position (index 2 or 16)
+    /// Calculates radial distance from station center in cell units.
+    /// Uses cell-center coordinates, so rings stay visually circular.
     /// </summary>
-    private static int CalculateDistanceFromCenterZoneBorder(int x, int y)
+    private static float CalculateRadialDistanceFromCenter(int x, int y)
     {
-        // Calculate distance on each axis to nearest center zone edge
-        // Center zone spans indices 7-11, edges at 6 and 12
-        var dx = DistanceFromRange(x, CenterStart - 1, CenterEnd + 1);
-        var dy = DistanceFromRange(y, CenterStart - 1, CenterEnd + 1);
-        
-        // Chebyshev distance (max of x and y distances for square rings)
-        return Math.Max(dx, dy);
+        var center = GridSize / 2f;
+        var cellCenterX = x + 0.5f;
+        var cellCenterY = y + 0.5f;
+        var dx = cellCenterX - center;
+        var dy = cellCenterY - center;
+        return MathF.Sqrt(dx * dx + dy * dy);
     }
 
     /// <summary>
-    /// Calculates distance from a value to the nearest edge of a range.
-    /// Returns 0 if value is within range, positive distance otherwise.
-    /// </summary>
-    private static int DistanceFromRange(int value, int rangeMin, int rangeMax)
-    {
-        if (value < rangeMin)
-            return rangeMin - value;
-        if (value > rangeMax)
-            return value - rangeMax;
-        return 0;
-    }
-
-    /// <summary>
-    /// Checks if cell is in the center 5x5 zone (indices 7-11).
-    /// </summary>
-    private static bool IsInCenterZone(int x, int y)
-    {
-        return x >= CenterStart && x <= CenterEnd && y >= CenterStart && y <= CenterEnd;
-    }
-
-    /// <summary>
-    /// Rolls biome for orbit cells: 60% asteroids, 30% nebula, 10% empty.
+    /// Rolls biome for orbit cells.
     /// </summary>
     private string? RollOrbitBiome()
     {
@@ -234,7 +192,7 @@ public sealed class SpaceBiomeGridSystem : EntitySystem
         }
         else
         {
-            return null; // 10% empty
+            return null; // Remaining chance is empty
         }
     }
 
@@ -248,7 +206,7 @@ public sealed class SpaceBiomeGridSystem : EntitySystem
         if (roll < OuterCarpStormChance)
         {
             // Mix of ion storm and electric storm
-            return _random.NextFloat() < 0.5f ? "IonStorm" : "DebrisField";
+            return _random.NextFloat() < 0.5f ? "IonStorm" : "ElectricStorm";
         }
         else
         {
@@ -261,15 +219,14 @@ public sealed class SpaceBiomeGridSystem : EntitySystem
     /// </summary>
     private EntityUid SpawnBiomeCell(string biomeId, Vector2 worldPos, MapId mapId, int gridX, int gridY)
     {
-        var sourceId = biomeId switch
+        // Data-driven source prototype lookup:
+        // for biome "Foo" expects entity prototype "SpaceBiomeSourceFoo".
+        var sourceId = $"SpaceBiomeSource{biomeId}";
+        if (!_protoMan.HasIndex<EntityPrototype>(sourceId))
         {
-            "AsteroidBelt" => "SpaceBiomeSourceAsteroidBelt",
-            "DebrisField" => "SpaceBiomeSourceDebrisField",
-            "AnomalousSpace" => "SpaceBiomeSourceAnomalousSpace",
-            "NebulaSpace" => "SpaceBiomeSourceNebulaSpace",
-            "IonStorm" => "SpaceBiomeSourceIonStorm",
-            _ => "SpaceBiomeSourceDefault"
-        };
+            _sawmill.Warning($"Biome source prototype '{sourceId}' not found for biome '{biomeId}', using default source.");
+            sourceId = "SpaceBiomeSourceDefault";
+        }
 
         var uid = Spawn(sourceId, new MapCoordinates(worldPos, mapId));
 
