@@ -65,9 +65,4 @@
     
 - type: loadoutEffectGroup
   id: LollypopTricordrazine
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:DepartmentTimeRequirement
-      department: Medical
-      time: 360000 # 100 hours
+  effects: []

@@ -91,11 +91,6 @@
       !type:RoleTimeRequirement
       role: JobMedicalDoctor
       time: 21600 #6 hrs
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:DepartmentTimeRequirement
-      department: Medical
-      time: 216000 # 60 hrs
 
 # Other Timers
 
