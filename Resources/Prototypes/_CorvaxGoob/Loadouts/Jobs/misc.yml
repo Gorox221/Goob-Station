@@ -10,12 +10,7 @@
 
 - type: loadoutEffectGroup
   id: HamsterLoadoutRequirement
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobCaptain
-      time: 720000 # 200 hours
+  effects: []
 
 - type: loadout
   id: Moproach
@@ -28,12 +23,7 @@
 
 - type: loadoutEffectGroup
   id: MoproachLoadoutRequirement
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobJanitor
-      time: 720000 # 200 hours
+  effects: []
 
 - type: loadout
   id: Butterfly

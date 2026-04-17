@@ -1,11 +1,6 @@
 - type: loadoutEffectGroup
   id: SeniorSurgeon
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobSurgeon
-      time: 187200 # 52 hrs
+  effects: []
 
 - type: loadout
   id: SurgeonScalpelLaser

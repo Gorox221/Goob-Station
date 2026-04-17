@@ -19,18 +19,8 @@
     
 - type: loadoutEffectGroup
   id: SeniorEngineer
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:DepartmentTimeRequirement
-      department: Engineering
-      time: 187200 # 52 hours
+  effects: []
 
 - type: loadoutEffectGroup
   id: ExpertEngineer
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:DepartmentTimeRequirement
-      department: Engineering
-      time: 720000 # 200 hours
+  effects: []

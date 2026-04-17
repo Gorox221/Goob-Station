@@ -82,22 +82,12 @@
 # For mantles
 - type: loadoutEffectGroup
   id: MasterHoS
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobHeadOfSecurity
-      time: 72000 #20 hrs
+  effects: []
 
 # Goobstation - For Ensembles
 - type: loadoutEffectGroup
   id: GrandMasterHoS
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobHeadOfSecurity
-      time: 360000 # 100 hrs
+  effects: []
 
 # Jumpsuit
 - type: loadout

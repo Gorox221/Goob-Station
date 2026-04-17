@@ -3,7 +3,5 @@
   name: department-Legal
   description: department-Legal-description
   color: "#0c344d"
-  roles:
-  - Magistrate
-  - Lawyer
+  roles: []
   weight: 90

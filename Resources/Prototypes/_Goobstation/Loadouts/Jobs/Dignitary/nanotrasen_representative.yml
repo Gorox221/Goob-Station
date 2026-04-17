@@ -89,12 +89,7 @@
 # Goobstation - For Ensembles
 - type: loadoutEffectGroup
   id: GrandMasterNTR
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobNanotrasenRepresentative
-      time: 360000 # 100 hrs
+  effects: []
 
 - type: loadout
   id: NanotrasenRepresentativeTop

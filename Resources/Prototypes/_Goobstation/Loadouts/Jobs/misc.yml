@@ -11,17 +11,7 @@
 
 - type: loadoutEffectGroup
   id: PersonalAI
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobResearchDirector
-      time: 36000 # 10 hrs
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobBorg
-      time: 36000 # 10 hrs
+  effects: []
 
 - type: loadout
   id: Bodycam
@@ -52,12 +42,6 @@
 
 - type: loadout
   id: GoldenPersonalAI
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobStationAi
-      time: 180000 # 50 hrs
   storage:
     back:
     - GoldenPersonalAI

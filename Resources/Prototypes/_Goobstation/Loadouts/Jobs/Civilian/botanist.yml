@@ -5,12 +5,7 @@
 
 - type: loadoutEffectGroup
   id: MasterBotanist
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobBotanist
-      time: 72000 #20 hours
+  effects: []
 
 - type: loadout
   id: BotanistBeret

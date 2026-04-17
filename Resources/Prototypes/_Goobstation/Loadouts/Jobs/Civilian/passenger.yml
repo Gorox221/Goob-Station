@@ -1,12 +1,7 @@
 # Tide Quarterzip for the sophisticated passengers
 - type: loadoutEffectGroup
   id: SophisticatedTider
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobPassenger
-      time: 288000 # 80 hrs
+  effects: []
 
 # Quarterzip
 - type: loadout

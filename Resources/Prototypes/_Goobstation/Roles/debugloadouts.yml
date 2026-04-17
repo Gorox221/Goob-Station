@@ -13,7 +13,6 @@
 
 - type: startingGear
   id: WardenGearDebug
-  parent: WardenGear
   equipment:
     head: ClothingHeadHatWarden
     outerClothing: ClothingOuterCoatWarden
@@ -23,7 +22,6 @@
 
 - type: startingGear
   id: HoSGearDebug
-  parent: HoSGear
   equipment:
     head: ClothingHeadHatHoshat
     outerClothing: ClothingOuterCoatHoSTrench
@@ -33,7 +31,6 @@
 
 - type: startingGear
   id: SecurityOfficerGearDebug
-  parent: SecurityOfficerGear
   equipment:
     jumpsuit: ClothingUniformJumpsuitSec
     gloves: ClothingHandsGlovesColorBlack
@@ -113,7 +110,6 @@
 
 - type: startingGear
   id: BlueShieldOfficerGearDebug
-  parent: BlueshieldOfficerGear
   equipment:
     outerClothing: ClothingBlueshieldArmourVest
     head: ClothingHeadHatBeretBlueshield

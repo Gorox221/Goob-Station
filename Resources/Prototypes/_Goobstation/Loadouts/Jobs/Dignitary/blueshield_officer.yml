@@ -17,22 +17,12 @@
 
 - type: loadoutEffectGroup
   id: SeniorBlueshieldOfficer
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobBlueshieldOfficer
-      time: 187200
+  effects: []
 
 # Goobstation - For Ensembles
 - type: loadoutEffectGroup
   id: GrandMasterBSO
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobBlueshieldOfficer
-      time: 360000 # 100 hrs
+  effects: []
 
 # Hats
 - type: loadout

@@ -125,9 +125,6 @@
   - !type:DepartmentTimeRequirement
     department: Security
     time: 36000 # 10h Goobstation
-  - !type:RoleTimeRequirement
-    role: JobChemist
-    time: 18000 # 5h Goobstation
   - !type:SpeciesRequirement
     inverted: true
     species:

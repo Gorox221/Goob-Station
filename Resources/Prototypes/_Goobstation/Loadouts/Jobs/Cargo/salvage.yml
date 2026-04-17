@@ -10,21 +10,11 @@
 
 - type: loadoutEffectGroup
   id: MasterMiner
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobSalvageSpecialist
-      time: 72000 #20 hours
+  effects: []
 
 - type: loadoutEffectGroup
   id: GrandMasterSalvageSpecialist
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobSalvageSpecialist
-      time: 360000 # 100 hrs
+  effects: []
 - type: loadout
   id: MinerCloak
   effects:

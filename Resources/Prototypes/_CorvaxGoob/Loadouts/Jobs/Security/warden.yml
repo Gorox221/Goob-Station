@@ -14,12 +14,7 @@
     
 - type: loadoutEffectGroup
   id: SeniorWardenHat
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobWarden
-      time: 187200 # 52 hours
+  effects: []
       
 # Backpack:
 - type: loadout
@@ -32,9 +27,4 @@
     
 - type: loadoutEffectGroup
   id: SeniorWardenBackpack
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobWarden
-      time: 187200 # 52 hours
+  effects: []

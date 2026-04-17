@@ -93,12 +93,7 @@
 # Timers
 - type: loadoutEffectGroup
   id: Command
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:DepartmentTimeRequirement
-      department: Command
-      time: 3600 # 1 hour
+  effects: []
 
 # Flowers
 - type: loadout
@@ -343,12 +338,6 @@
 
 - type: loadout
   id: OffsetCaneClown
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobClown
-      time: 3600 # 1hr
   storage:
     back:
     - OffsetCaneClown
@@ -356,12 +345,6 @@
 
 - type: loadout
   id: OffsetCaneMime
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobMime
-      time: 3600 # 1hr
   storage:
     back:
     - OffsetCaneMime
@@ -369,12 +352,6 @@
 
 - type: loadout
   id: OffsetCaneNT
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:DepartmentTimeRequirement
-      department: Command
-      time: 18000 # 5hr
   storage:
     back:
     - OffsetCaneNT
@@ -382,12 +359,6 @@
 
 - type: loadout
   id: Cane
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobLibrarian
-      time: 3600 # 1hr same as Jamjar.
   storage:
     back:
     - Cane
@@ -409,12 +380,6 @@
 # Nanotrasen Variant
 - type: loadout
   id: CardBoxNanotrasen
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobQuartermaster
-      time: 36000 # 10hr
   storage:
     back:
     - CardBoxNanotrasen
@@ -445,12 +410,6 @@
 
 - type: loadout
   id: FoodSnackLollypopWrappedCarp
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobSalvageSpecialist
-      time: 360000 # 100hr
   storage:
     back:
     - FoodSnackLollypopWrappedCarp
@@ -496,12 +455,6 @@
 
 - type: loadout
   id: TowelColorLightBrown
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:DepartmentTimeRequirement
-      department: Cargo
-      time: 360000 # 100hr
   storage:
     back:
     - TowelColorLightBrown
@@ -509,12 +462,6 @@
 
 - type: loadout
   id: TowelColorGreen
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:DepartmentTimeRequirement
-      department: Civilian
-      time: 360000 # 100hr
   storage:
     back:
     - TowelColorGreen
@@ -522,12 +469,6 @@
 
 - type: loadout
   id: TowelColorDarkBlue
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:DepartmentTimeRequirement
-      department: Command
-      time: 360000 # 100hr
   storage:
     back:
     - TowelColorDarkBlue
@@ -535,12 +476,6 @@
 
 - type: loadout
   id: TowelColorOrange
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:DepartmentTimeRequirement
-      department: Engineering
-      time: 360000 # 100hr
   storage:
     back:
     - TowelColorOrange
@@ -548,12 +483,6 @@
 
 - type: loadout
   id: TowelColorLightBlue
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:DepartmentTimeRequirement
-      department: Medical
-      time: 360000 # 100hr
   storage:
     back:
     - TowelColorLightBlue
@@ -561,12 +490,6 @@
 
 - type: loadout
   id: TowelColorPurple
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:DepartmentTimeRequirement
-      department: Science
-      time: 360000 # 100hr
   storage:
     back:
     - TowelColorPurple
@@ -574,12 +497,6 @@
 
 - type: loadout
   id: TowelColorRed
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:DepartmentTimeRequirement
-      department: Security
-      time: 360000 # 100hr
   storage:
     back:
     - TowelColorRed
@@ -587,12 +504,6 @@
 
 - type: loadout
   id: TowelColorGray
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobPassenger
-      time: 360000 # 100hr
   storage:
     back:
     - TowelColorGray
@@ -600,12 +511,6 @@
 
 - type: loadout
   id: TowelColorBlack
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobChaplain
-      time: 360000 # 100hr
   storage:
     back:
     - TowelColorBlack
@@ -613,12 +518,6 @@
 
 - type: loadout
   id: TowelColorDarkGreen
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobLibrarian
-      time: 360000 # 100hr
   storage:
     back:
     - TowelColorDarkGreen
@@ -626,12 +525,6 @@
 
 - type: loadout
   id: TowelColorMaroon
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobLawyer
-      time: 360000 # 100hr
   storage:
     back:
     - TowelColorMaroon
@@ -639,12 +532,6 @@
 
 - type: loadout
   id: TowelColorYellow
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobClown
-      time: 360000 # 100hr
   storage:
     back:
     - TowelColorYellow
@@ -652,12 +539,6 @@
 
 - type: loadout
   id: TowelColorMime
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobMime
-      time: 360000 # 100hr
   storage:
     back:
     - TowelColorMime
