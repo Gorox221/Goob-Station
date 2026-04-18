@@ -1,11 +1,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography;
 using Content.Server.Chat.Managers;
 using Content.Server.GameTicking;
+using Content.Server._Shiptest.ShipAccess;
 using Content.Server._Shiptest.SpaceBiomes;
 using Content.Server.Station.Components;
 using Content.Server.Station.Systems;
+using Content.Shared.Access.Components;
+using Content.Shared.Access.Systems;
+using Content.Shared._Shiptest.Access;
 using Content.Shared._Shiptest.ShipSpawn;
 using Content.Shared.GameTicking;
 using Content.Shared.Roles;
@@ -38,6 +43,7 @@ public sealed class PlayerShipSpawnSystem : EntitySystem
     [Dependency] private readonly StationSystem _station = default!;
     [Dependency] private readonly ISerializationManager _serialization = default!;
     [Dependency] private readonly TransformSystem _transform = default!;
+    [Dependency] private readonly AccessReaderSystem _accessReader = default!;
 
     /// <summary>
     /// Player ship blueprint ids that have already been spawned this round (one per id).
@@ -208,10 +214,35 @@ public sealed class PlayerShipSpawnSystem : EntitySystem
             new[] { gridUid },
             name: Loc.GetString(blueprint.Name));
 
+        ApplyPlayerShipHullAccess(shipStation, gridUid);
+
         var captainCoords = new EntityCoordinates(gridUid, loadedGrid.Value.Comp.LocalAABB.Center);
         _ticker.MakeJoinGame(session, shipStation, blueprint.CaptainJob.Id, silent: true, forceSpawn: captainCoords);
 
         _claimedShipBlueprints.Add(blueprint.ID);
         BroadcastClaimedBlueprints();
+    }
+
+    /// <summary>
+    /// Assign a unique hull token to this ship station and require it on all access readers on the loaded grid.
+    /// </summary>
+    private void ApplyPlayerShipHullAccess(EntityUid shipStation, EntityUid gridUid)
+    {
+        var hull = EnsureComp<PlayerShipHullAccessComponent>(shipStation);
+        hull.Token = Convert.ToHexString(RandomNumberGenerator.GetBytes(16));
+
+        var query = AllEntityQuery<AccessReaderComponent, TransformComponent>();
+        while (query.MoveNext(out var uid, out var reader, out var xform))
+        {
+            if (xform.GridUid != gridUid)
+                continue;
+
+            _accessReader.ClearAccesses((uid, reader));
+            _accessReader.ClearAccessKeys((uid, reader));
+
+            var hullReader = EnsureComp<ShipHullAccessReaderComponent>(uid);
+            hullReader.RequiredHullToken = hull.Token;
+            Dirty(uid, hullReader);
+        }
     }
 }

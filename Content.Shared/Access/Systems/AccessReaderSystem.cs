@@ -101,6 +101,7 @@ using Content.Shared.IdentityManagement;
 using Content.Shared.Inventory;
 using Content.Shared.NameIdentifier;
 using Content.Shared.PDA;
+using Content.Shared._Shiptest.Access;
 using Content.Shared.StationRecords;
 using Content.Shared.Tag;
 using Robust.Shared.Containers;
@@ -182,13 +183,20 @@ public sealed class AccessReaderSystem : EntitySystem
         if (!GetMainAccessReader(uid, out var accessReader))
             return;
 
-        if (accessReader.Value.Comp.AccessLists.Count < 1)
+        TryComp<ShipHullAccessReaderComponent>(uid, out var hullReader);
+        var hasHull = hullReader != null && !string.IsNullOrEmpty(hullReader.RequiredHullToken);
+        if (accessReader.Value.Comp.AccessLists.Count < 1 && !hasHull)
             return;
 
         args.Repeatable = true;
         args.Handled = true;
         accessReader.Value.Comp.AccessLists.Clear();
         accessReader.Value.Comp.AccessLog.Clear();
+        if (hullReader != null && hasHull)
+        {
+            hullReader.RequiredHullToken = "";
+            Dirty(uid, hullReader);
+        }
         Dirty(uid, reader);
     }
 
@@ -208,10 +216,11 @@ public sealed class AccessReaderSystem : EntitySystem
             return true;
 
         var accessSources = FindPotentialAccessItems(user);
+        var hullTokens = FindHullGrantTokens(accessSources);
         var access = FindAccessTags(user, accessSources);
         FindStationRecordKeys(user, out var stationKeys, accessSources);
 
-        if (!IsAllowed(access, stationKeys, target, reader))
+        if (!IsAllowed(access, stationKeys, target, reader, hullTokens))
             return false;
 
         if (!_tag.HasTag(user, PreventAccessLoggingTag))
@@ -262,10 +271,17 @@ public sealed class AccessReaderSystem : EntitySystem
         ICollection<ProtoId<AccessLevelPrototype>> access,
         ICollection<StationRecordKey> stationKeys,
         EntityUid target,
-        AccessReaderComponent reader)
+        AccessReaderComponent reader,
+        HashSet<string> hullTokens)
     {
         if (!reader.Enabled)
             return true;
+
+        if (TryComp<ShipHullAccessReaderComponent>(target, out var hullReader)
+            && !string.IsNullOrEmpty(hullReader.RequiredHullToken))
+        {
+            return hullTokens.Contains(hullReader.RequiredHullToken);
+        }
 
         if (reader.ContainerAccessProvider == null)
             return IsAllowedInternal(access, stationKeys, reader);
@@ -283,11 +299,36 @@ public sealed class AccessReaderSystem : EntitySystem
             if (!TryComp(entity, out AccessReaderComponent? containedReader))
                 continue;
 
-            if (IsAllowed(access, stationKeys, entity, containedReader))
+            if (IsAllowed(access, stationKeys, entity, containedReader, hullTokens))
                 return true;
         }
 
         return false;
+    }
+
+    private HashSet<string> FindHullGrantTokens(HashSet<EntityUid> accessSources)
+    {
+        var tokens = new HashSet<string>();
+        foreach (var ent in accessSources)
+        {
+            AddHullTokensFromGrant(ent, tokens);
+            if (TryComp<PdaComponent>(ent, out var pda) && pda.ContainedId is { } contained)
+                AddHullTokensFromGrant(contained, tokens);
+        }
+
+        return tokens;
+    }
+
+    private void AddHullTokensFromGrant(EntityUid uid, HashSet<string> tokens)
+    {
+        if (!TryComp<PlayerShipHullGrantComponent>(uid, out var grant))
+            return;
+
+        foreach (var t in grant.Tokens)
+        {
+            if (!string.IsNullOrEmpty(t))
+                tokens.Add(t);
+        }
     }
 
     private bool IsAllowedInternal(ICollection<ProtoId<AccessLevelPrototype>> access, ICollection<StationRecordKey> stationKeys, AccessReaderComponent reader)
