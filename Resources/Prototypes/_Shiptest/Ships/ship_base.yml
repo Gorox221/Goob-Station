@@ -1,0 +1,9 @@
+- type: entity
+  id: PlayerShipStation
+  parent:
+    - BaseStation
+    - BaseStationJobsSpawning
+    - BaseStationRecords
+  categories: [ HideSpawnMenu ]
+  components:
+    - type: Transform

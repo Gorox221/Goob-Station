@@ -24,6 +24,11 @@ namespace Content.Server._Shiptest.SpaceBiomes;
 /// </summary>
 public sealed class SpaceBiomeGridSystem : EntitySystem
 {
+    /// <summary>
+    /// Player-created ship stations must not re-anchor the global biome grid (see <see cref="OnStationPostInit"/>).
+    /// </summary>
+    public const string PlayerShipStationPrototypeId = "PlayerShipStation";
+
     [Dependency] private readonly StationSystem _stationSystem = default!;
     [Dependency] private readonly TransformSystem _transform = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
@@ -76,6 +81,10 @@ public sealed class SpaceBiomeGridSystem : EntitySystem
 
     private void OnStationPostInit(ref StationPostInitEvent ev)
     {
+        // Only the round-start map station should own the biome grid; mid-round player ships are also "stations".
+        if (MetaData(ev.Station).EntityPrototype?.ID == PlayerShipStationPrototypeId)
+            return;
+
         var gridUid = _stationSystem.GetLargestGrid((ev.Station.Owner, ev.Station.Comp));
         if (!gridUid.HasValue)
             return;

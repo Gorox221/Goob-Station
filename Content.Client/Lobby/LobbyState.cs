@@ -87,8 +87,8 @@ using Content.Client._durkcode.ServerCurrency; CorvaxGoob-Coins
 using Content.Client._RMC14.LinkAccount;
 CorvaxGoob-Coins-end */
 using Content.Client.Audio;
+using Content.Client._Shiptest.ShipSpawn;
 using Content.Client.GameTicking.Managers;
-using Content.Client.LateJoin;
 using Content.Client.Lobby.UI;
 using Content.Client.Message;
 using Content.Client.Playtime;
@@ -97,7 +97,6 @@ using Content.Client.Voting;
 using Content.Goobstation.Common.ServerCurrency;
 using Content.Shared.CCVar;
 using Robust.Client;
-using Robust.Client.Console;
 using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
@@ -111,7 +110,6 @@ namespace Content.Client.Lobby
     {
         [Dependency] private readonly IBaseClient _baseClient = default!;
         [Dependency] private readonly IConfigurationManager _cfg = default!;
-        [Dependency] private readonly IClientConsoleHost _consoleHost = default!;
         [Dependency] private readonly IEntityManager _entityManager = default!;
         [Dependency] private readonly IResourceCache _resourceCache = default!;
         [Dependency] private readonly IUserInterfaceManager _userInterfaceManager = default!;
@@ -165,8 +163,7 @@ namespace Content.Client.Lobby
 
             Lobby.CharacterPreview.CharacterSetupButton.OnPressed += OnSetupPressed;
             //Lobby.CharacterPreview.PatronPerks.OnPressed += OnPatronPerksPressed; CorvaxGoob-Coins
-            Lobby.ReadyButton.OnPressed += OnReadyPressed;
-            Lobby.ReadyButton.OnToggled += OnReadyToggled;
+            Lobby.CreateShipButton.OnPressed += OnCreateShipPressed;
 
             _gameTicker.InfoBlobUpdated += UpdateLobbyUi;
             _gameTicker.LobbyStatusUpdated += LobbyStatusUpdated;
@@ -189,8 +186,7 @@ namespace Content.Client.Lobby
 
             Lobby!.CharacterPreview.CharacterSetupButton.OnPressed -= OnSetupPressed;
             //Lobby.CharacterPreview.PatronPerks.OnPressed -= OnPatronPerksPressed; CorvaxGoob-Coins
-            Lobby!.ReadyButton.OnPressed -= OnReadyPressed;
-            Lobby!.ReadyButton.OnToggled -= OnReadyToggled;
+            Lobby!.CreateShipButton.OnPressed -= OnCreateShipPressed;
 
             Lobby = null;
         }
@@ -203,7 +199,6 @@ namespace Content.Client.Lobby
 
         private void OnSetupPressed(BaseButton.ButtonEventArgs args)
         {
-            SetReady(false);
             Lobby?.SwitchState(LobbyGui.LobbyGuiState.CharacterSetup);
         }
 
@@ -214,19 +209,16 @@ namespace Content.Client.Lobby
         }
         CorvaxGoob-Coins-end */
 
-        private void OnReadyPressed(BaseButton.ButtonEventArgs args)
+        private void OnCreateShipPressed(BaseButton.ButtonEventArgs args)
         {
-            if (!_gameTicker.IsGameStarted)
-            {
+            if (!_gameTicker.IsGameStarted || _gameTicker.DisallowedLateJoin)
                 return;
-            }
 
-            new LateJoinGui().OpenCentered();
-        }
-
-        private void OnReadyToggled(BaseButton.ButtonToggledEventArgs args)
-        {
-            SetReady(args.Pressed);
+            var shipSpawn = _entityManager.System<ShipSpawnClientSystem>();
+            shipSpawn.RequestAvailabilityAndThen(() =>
+            {
+                new ShipSpawnWindow(_protoMan, shipSpawn.RequestSpawn, shipSpawn.ConsumedBlueprints).OpenCentered();
+            });
         }
 
         public override void FrameUpdate(FrameEventArgs e)
@@ -280,7 +272,14 @@ namespace Content.Client.Lobby
 
         private void LobbyLateJoinStatusUpdated()
         {
-            Lobby!.ReadyButton.Disabled = _gameTicker.DisallowedLateJoin;
+            if (Lobby == null)
+                return;
+
+            if (_gameTicker.IsGameStarted)
+            {
+                Lobby.LateJoinButton.Disabled = _gameTicker.DisallowedLateJoin;
+                Lobby.CreateShipButton.Disabled = _gameTicker.DisallowedLateJoin;
+            }
         }
 
         private void UpdateLobbyUi()
@@ -289,18 +288,17 @@ namespace Content.Client.Lobby
 
             if (_gameTicker.IsGameStarted)
             {
-                Lobby!.ReadyButton.Text = Loc.GetString("lobby-state-ready-button-join-state");
-                Lobby!.ReadyButton.ToggleMode = false;
-                Lobby!.ReadyButton.Pressed = false;
+                Lobby!.LateJoinButton.Visible = true;
+                Lobby!.LateJoinButton.Disabled = _gameTicker.DisallowedLateJoin;
+                Lobby!.CreateShipButton.Visible = true;
+                Lobby!.CreateShipButton.Disabled = _gameTicker.DisallowedLateJoin;
                 Lobby!.ObserveButton.Disabled = false;
             }
             else
             {
                 Lobby!.StartTime.Text = string.Empty;
-                Lobby!.ReadyButton.Text = Loc.GetString(Lobby!.ReadyButton.Pressed ? "lobby-state-player-status-ready": "lobby-state-player-status-not-ready");
-                Lobby!.ReadyButton.ToggleMode = true;
-                Lobby!.ReadyButton.Disabled = false;
-                Lobby!.ReadyButton.Pressed = _gameTicker.AreWeReady;
+                Lobby!.LateJoinButton.Visible = false;
+                Lobby!.CreateShipButton.Visible = false;
                 Lobby!.ObserveButton.Disabled = true;
             }
 
@@ -389,16 +387,6 @@ namespace Content.Client.Lobby
             _sawmill.Warning("_gameTicker.LobbyBackground was null! No lobby background selected.");
             Lobby!.Background.Texture = null;
             Lobby!.LobbyBackground.SetMarkup(Loc.GetString("lobby-state-background-no-background-text"));
-        }
-
-        private void SetReady(bool newReady)
-        {
-            if (_gameTicker.IsGameStarted)
-            {
-                return;
-            }
-
-            _consoleHost.ExecuteCommand($"toggleready {newReady}");
         }
 
         //private void UpdatePlayerBalance() // Goobstation - Goob Coin

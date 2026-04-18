@@ -1,0 +1,17 @@
+- type: job
+  id: CaptainSolarConfederation
+  name: job-name-captain-sol
+  description: job-description-captain-sol
+  playTimeTracker: JobCaptainSolarConfederation
+  startingGear: PassengerGear
+  icon: JobIconCaptain
+  joinNotifyCrew: false
+  supervisors: job-supervisors-everyone
+  access:
+  - Maintenance
+  special:
+  - !type:AddComponentSpecial
+    components:
+    - type: NpcFactionMember
+      factions:
+      - NanoTrasen

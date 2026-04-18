@@ -37,6 +37,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
     xmlns:vote="clr-namespace:Content.Client.Voting.UI"
     xmlns:style="clr-namespace:Content.Client.Stylesheets"
     xmlns:lobbyUi="clr-namespace:Content.Client.Lobby.UI"
+    xmlns:latejoin="clr-namespace:Content.Client.LateJoin"
     xmlns:info="clr-namespace:Content.Client.Info"
     xmlns:widgets="clr-namespace:Content.Client.UserInterface.Systems.Chat.Widgets">
     <!-- Background -->
@@ -66,8 +67,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                                                Align="Left"
                                                FontColorOverride="{x:Static maths:Color.DarkGray}"
                                                StyleClasses="LabelBig" HorizontalExpand="True" />
-                                        <Button Name="ReadyButton" Access="Public" ToggleMode="True"
-                                                Text="{Loc 'ui-lobby-ready-up-button'}"
+                                        <cc:UICommandButton Name="LateJoinButton" Access="Public" Visible="False"
+                                                            Text="{Loc 'ui-lobby-late-join-button'}"
+                                                            StyleClasses="ButtonBig" MinWidth="137"
+                                                            WindowType="{x:Type latejoin:LateJoinGui}" />
+                                        <Button Name="CreateShipButton" Access="Public" Visible="False"
+                                                Text="{Loc 'ui-lobby-create-ship-button'}"
                                                 StyleClasses="ButtonBig" MinWidth="137" />
                                     </BoxContainer>
                                 </controls:StripeBack>

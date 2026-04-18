@@ -1,0 +1,36 @@
+- type: playerShipSpawnSettings
+  id: PlayerShipSpawn
+  maxDistanceFromStationCenter: 15000
+  minDistanceFromStationCenter: 1500
+  placementAttempts: 64
+  requireDefaultSpaceBiome: true
+
+- type: playerShipFaction
+  id: SyndicatePlayerFaction
+  name: player-ship-faction-syndicate-name
+  ships:
+  - SyndicatePlayerShipStub
+
+- type: playerShipFaction
+  id: SolarConfederationPlayerFaction
+  name: player-ship-faction-solar-confederation-name
+  ships:
+  - SolarConfederationPlayerShipStub
+
+- type: playerShipBlueprint
+  id: SyndicatePlayerShipStub
+  name: player-ship-blueprint-syndicate-stub
+  map: /Maps/Shuttles/shittle.yml
+  captainJob: CaptainSyndicate
+  availableJobs:
+    CaptainSyndicate: [1, 1]
+    Passenger: [3, 3]
+
+- type: playerShipBlueprint
+  id: SolarConfederationPlayerShipStub
+  name: player-ship-blueprint-solar-stub
+  map: /Maps/Shuttles/shittle.yml
+  captainJob: CaptainSolarConfederation
+  availableJobs:
+    CaptainSolarConfederation: [1, 1]
+    Passenger: [3, 3]

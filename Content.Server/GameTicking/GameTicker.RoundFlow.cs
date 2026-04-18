@@ -426,7 +426,8 @@ namespace Content.Server.GameTicking
             var total = 0;
             foreach (var (userId, status) in _playerGameStatuses)
             {
-                if (LobbyEnabled && status == PlayerGameStatus.NotReadyToPlay)
+                // Lobby has no ready-up UI: everyone in the lobby pool counts (exclude only in-round players).
+                if (LobbyEnabled && status == PlayerGameStatus.JoinedGame)
                     continue;
 
                 if (!_playerManager.TryGetSessionById(userId, out _))
@@ -460,12 +461,14 @@ namespace Content.Server.GameTicking
 
             SendServerMessage(Loc.GetString("game-ticker-start-round"));
 
-            var readyPlayers = new List<ICommonSession>();
-            var readyPlayerProfiles = new Dictionary<NetUserId, HumanoidCharacterProfile>();
+            // Everyone in the lobby (except already in-round) counts for presets / min players.
+            var lobbyPlayers = new List<ICommonSession>();
+            var lobbyPlayerProfiles = new Dictionary<NetUserId, HumanoidCharacterProfile>();
             var autoDeAdmin = _cfg.GetCVar(CCVars.AdminDeadminOnJoin);
             foreach (var (userId, status) in _playerGameStatuses)
             {
-                if (LobbyEnabled && status != PlayerGameStatus.ReadyToPlay) continue;
+                if (LobbyEnabled && status == PlayerGameStatus.JoinedGame)
+                    continue;
                 if (!_playerManager.TryGetSessionById(userId, out var session)) continue;
 
                 if (autoDeAdmin && _adminManager.IsAdmin(session))
@@ -473,10 +476,10 @@ namespace Content.Server.GameTicking
                     _adminManager.DeAdmin(session);
                 }
 #if DEBUG
-                DebugTools.Assert(_userDb.IsLoadComplete(session), $"Player was readied up but didn't have user DB data loaded yet??");
+                DebugTools.Assert(_userDb.IsLoadComplete(session), $"Player joining round start but didn't have user DB data loaded yet??");
 #endif
 
-                readyPlayers.Add(session);
+                lobbyPlayers.Add(session);
                 HumanoidCharacterProfile profile;
                 if (_prefsManager.TryGetCachedPreferences(userId, out var preferences))
                 {
@@ -486,10 +489,22 @@ namespace Content.Server.GameTicking
                 {
                     profile = HumanoidCharacterProfile.Random();
                 }
-                readyPlayerProfiles.Add(userId, profile);
+                lobbyPlayerProfiles.Add(userId, profile);
             }
 
-            DebugTools.AssertEqual(readyPlayers.Count, ReadyPlayerCount());
+            DebugTools.AssertEqual(lobbyPlayers.Count, ReadyPlayerCount());
+
+            // Only explicitly readied players get spawned at round start (no ready UI => everyone stays NotReady).
+            var playersToSpawn = new List<ICommonSession>();
+            var spawnProfiles = new Dictionary<NetUserId, HumanoidCharacterProfile>();
+            foreach (var session in lobbyPlayers)
+            {
+                if (!_playerGameStatuses.TryGetValue(session.UserId, out var st) || st != PlayerGameStatus.ReadyToPlay)
+                    continue;
+
+                playersToSpawn.Add(session);
+                spawnProfiles[session.UserId] = lobbyPlayerProfiles[session.UserId];
+            }
 
             // Just in case it hasn't been loaded previously we'll try loading it.
             LoadMaps();
@@ -505,7 +520,7 @@ namespace Content.Server.GameTicking
             var startingEvent = new RoundStartingEvent(RoundId);
             RaiseLocalEvent(startingEvent);
 
-            var origReadyPlayers = readyPlayers.ToArray();
+            var origReadyPlayers = lobbyPlayers.ToArray();
 
             if (!StartPreset(origReadyPlayers, force))
             {
@@ -516,7 +531,7 @@ namespace Content.Server.GameTicking
             // MapInitialize *before* spawning players, our codebase is too shit to do it afterwards...
             _map.InitializeMap(DefaultMap);
 
-            SpawnPlayers(readyPlayers, readyPlayerProfiles, force);
+            SpawnPlayers(playersToSpawn, spawnProfiles, force);
 
             _roundStartDateTime = DateTime.UtcNow;
             RunLevel = GameRunLevel.InRound;

@@ -105,7 +105,7 @@ namespace Content.Server.GameTicking
             }
 
             var playerCount = $"{_playerManager.PlayerCount}";
-            var readyCount = _playerGameStatuses.Values.Count(x => x == PlayerGameStatus.ReadyToPlay);
+            var readyCount = ReadyPlayerCount();
 
             var stationNames = new StringBuilder();
             var query =

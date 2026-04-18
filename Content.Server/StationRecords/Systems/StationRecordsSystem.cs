@@ -27,6 +27,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Content.Server.Access.Systems;
+using Content.Server.Station.Systems;
 using Content.Shared.Access.Components;
 using Content.Shared.Forensics.Components;
 using Content.Shared.GameTicking;
@@ -69,6 +70,7 @@ public sealed partial class StationRecordsSystem : SharedStationRecordsSystem
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     [Dependency] private readonly IdCardSystem _idCard = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
+    [Dependency] private readonly StationSystem _station = default!;
 
     public override void Initialize()
     {
@@ -80,10 +82,20 @@ public sealed partial class StationRecordsSystem : SharedStationRecordsSystem
 
     private void OnPlayerSpawn(PlayerSpawnCompleteEvent args)
     {
-        if (!TryComp<StationRecordsComponent>(args.Station, out var stationRecords))
+        // Prefer the station that owns the mob's grid. Late-join spawn selection can fall back to any spawn point
+        // while the ticker still passes the job's "home" station, which would otherwise store records on the wrong station
+        // (empty crew manifest on player ships, etc.).
+        if (_station.GetOwningStation(args.Mob) is { } owning
+            && TryComp<StationRecordsComponent>(owning, out var recOwning))
+        {
+            CreateGeneralRecord(owning, args.Mob, args.Profile, args.JobId, recOwning);
+            return;
+        }
+
+        if (!TryComp<StationRecordsComponent>(args.Station, out var recTicker))
             return;
 
-        CreateGeneralRecord(args.Station, args.Mob, args.Profile, args.JobId, stationRecords);
+        CreateGeneralRecord(args.Station, args.Mob, args.Profile, args.JobId, recTicker);
     }
 
     private void OnRename(ref EntityRenamedEvent ev)

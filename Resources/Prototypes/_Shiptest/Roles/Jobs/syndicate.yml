@@ -1,0 +1,17 @@
+- type: job
+  id: ShipCaptainSyndicate
+  name: job-name-captain-syndicate
+  description: job-description-captain-syndicate
+  playTimeTracker: JobShipCaptainSyndicate
+  startingGear: PassengerGear
+  icon: JobIconCaptain
+  joinNotifyCrew: false
+  supervisors: job-supervisors-everyone
+  access:
+  - Maintenance
+  special:
+  - !type:AddComponentSpecial
+    components:
+    - type: NpcFactionMember
+      factions:
+      - Syndicate
