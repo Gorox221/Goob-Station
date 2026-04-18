@@ -10,12 +10,18 @@
   name: player-ship-faction-syndicate-name
   ships:
   - SyndicatePlayerShipStub
+  cargoMarkets:
+  - ShipSyndicateMarket
+  startingCargoBalance: 7500
 
 - type: playerShipFaction
   id: SolarConfederationPlayerFaction
   name: player-ship-faction-solar-confederation-name
   ships:
   - SolarConfederationPlayerShipStub
+  cargoMarkets:
+  - ShipSolarConfederationMarket
+  startingCargoBalance: 7500
 
 - type: playerShipBlueprint
   id: SyndicatePlayerShipStub

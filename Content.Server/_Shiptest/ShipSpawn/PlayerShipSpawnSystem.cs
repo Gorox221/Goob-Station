@@ -1,17 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
 using Content.Server.Chat.Managers;
 using Content.Server.GameTicking;
 using Content.Server._Shiptest.ShipAccess;
 using Content.Server._Shiptest.SpaceBiomes;
+using Content.Server.Cargo.Components;
+using Content.Server.Cargo.Systems;
 using Content.Server.Station.Components;
 using Content.Server.Station.Systems;
 using Content.Shared.Access.Components;
 using Content.Shared.Access.Systems;
+using Content.Shared.Cargo.Components;
 using Content.Shared._Shiptest.Access;
 using Content.Shared._Shiptest.ShipSpawn;
 using Content.Shared.GameTicking;
@@ -49,6 +51,7 @@ public sealed class PlayerShipSpawnSystem : EntitySystem
     [Dependency] private readonly TransformSystem _transform = default!;
     [Dependency] private readonly AccessReaderSystem _accessReader = default!;
     [Dependency] private readonly IGamePrototypeLoadManager _runtimePrototypes = default!;
+    [Dependency] private readonly CargoSystem _cargo = default!;
 
     /// <summary>
     /// Player ship blueprint ids that have already been spawned this round (one per id).
@@ -219,6 +222,8 @@ public sealed class PlayerShipSpawnSystem : EntitySystem
             new[] { gridUid },
             name: Loc.GetString(blueprint.Name));
 
+        ApplyPlayerShipCargoAndBank(shipStation, faction);
+
         ApplyPlayerShipHullAccess(shipStation, gridUid);
 
         var captainCoords = new EntityCoordinates(gridUid, loadedGrid.Value.Comp.LocalAABB.Center);
@@ -226,6 +231,36 @@ public sealed class PlayerShipSpawnSystem : EntitySystem
 
         _claimedShipBlueprints.Add(blueprint.ID);
         BroadcastClaimedBlueprints();
+    }
+
+    /// <summary>
+    /// Sets cargo markets and starting funds for this vessel's station bank (one account entity per ship station).
+    /// </summary>
+    private void ApplyPlayerShipCargoAndBank(EntityUid shipStation, PlayerShipFactionPrototype faction)
+    {
+        if (TryComp<StationCargoOrderDatabaseComponent>(shipStation, out var cargoDb))
+        {
+            cargoDb.Markets.Clear();
+            foreach (var market in faction.CargoMarkets)
+                cargoDb.Markets.Add(market);
+
+            Dirty(shipStation, cargoDb);
+        }
+
+        if (TryComp<StationBankAccountComponent>(shipStation, out var bank))
+        {
+            var stationBank = (shipStation, bank);
+            foreach (var account in bank.Accounts.Keys.ToList())
+            {
+                var current = _cargo.GetBalanceFromAccount(stationBank, account);
+                var target = account == bank.PrimaryAccount
+                    ? faction.StartingCargoBalance
+                    : 0;
+                var delta = target - current;
+                if (delta != 0)
+                    _cargo.UpdateBankAccount(stationBank, delta, account);
+            }
+        }
     }
 
     /// <summary>

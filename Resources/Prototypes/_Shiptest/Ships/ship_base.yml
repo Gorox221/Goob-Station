@@ -2,6 +2,7 @@
   id: PlayerShipStation
   parent:
     - BaseStation
+    - BaseStationCargo
     - BaseStationJobsSpawning
     - BaseStationRecords
   categories: [ HideSpawnMenu ]

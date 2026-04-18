@@ -1,3 +1,4 @@
+using Content.Shared.Cargo.Prototypes;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype.List;
 
@@ -20,4 +21,16 @@ public sealed partial class PlayerShipFactionPrototype : IPrototype
     /// </summary>
     [DataField(required: true, customTypeSerializer: typeof(PrototypeIdListSerializer<PlayerShipBlueprintPrototype>))]
     public List<string> Ships { get; private set; } = new();
+
+    /// <summary>
+    /// Cargo markets available to this faction's vessel (station order database).
+    /// </summary>
+    [DataField]
+    public List<ProtoId<CargoMarketPrototype>> CargoMarkets { get; private set; } = new();
+
+    /// <summary>
+    /// Starting balance on the primary cargo account when the player ship station spawns.
+    /// </summary>
+    [DataField]
+    public int StartingCargoBalance { get; private set; } = 7500;
 }

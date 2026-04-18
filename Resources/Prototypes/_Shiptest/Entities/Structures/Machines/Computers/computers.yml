@@ -1,0 +1,12 @@
+- type: entity
+  id: ComputerShipCargo
+  parent: ComputerCargoOrders
+  name: cargo request computer
+  description: Used to order supplies for this vessel.
+  components:
+  - type: CargoOrderConsole
+    allowedGroups:
+    - ShipSolarConfederationMarket
+    - ShipSyndicateMarket
+  - type: AccessReader
+    access: []

@@ -1,0 +1,29 @@
+- type: cargoProduct
+  id: PlayerShipSolarPlastic
+  icon:
+    sprite: Objects/Materials/Sheets/other.rsi
+    state: plastic_3
+  product: CrateMaterialPlastic
+  cost: 1500
+  category: cargoproduct-category-name-materials
+  group: ShipSolarConfederationMarket
+
+- type: cargoProduct
+  id: PlayerShipSolarSteel
+  icon:
+    sprite: Objects/Materials/Sheets/metal.rsi
+    state: steel_3
+  product: CrateMaterialSteel
+  cost: 1500
+  category: cargoproduct-category-name-materials
+  group: ShipSolarConfederationMarket
+
+- type: cargoProduct
+  id: PlayerShipSolarMedical
+  icon:
+    sprite: Objects/Specific/Medical/firstaidkits.rsi
+    state: firstaid
+  product: CrateMedicalSupplies
+  cost: 2400
+  category: cargoproduct-category-name-medical
+  group: ShipSolarConfederationMarket

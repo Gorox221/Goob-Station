@@ -1,0 +1,39 @@
+- type: cargoProduct
+  id: PlayerShipSyndicateSteel
+  icon:
+    sprite: Objects/Materials/Sheets/metal.rsi
+    state: steel_3
+  product: CrateMaterialSteel
+  cost: 1500
+  category: cargoproduct-category-name-materials
+  group: ShipSyndicateMarket
+
+- type: cargoProduct
+  id: PlayerShipSyndicateGlass
+  icon:
+    sprite: Objects/Materials/Sheets/glass.rsi
+    state: glass_3
+  product: CrateMaterialGlass
+  cost: 1500
+  category: cargoproduct-category-name-materials
+  group: ShipSyndicateMarket
+
+- type: cargoProduct
+  id: PlayerShipSyndicateMRE
+  icon:
+    sprite: Objects/Consumable/Food/snacks.rsi
+    state: nutribrick
+  product: CrateFoodMRE
+  cost: 1400
+  category: cargoproduct-category-name-food
+  group: ShipSyndicateMarket
+
+- type: cargoProduct
+  id: PlayerShipSyndicateMedical
+  icon:
+    sprite: Objects/Specific/Medical/firstaidkits.rsi
+    state: firstaid
+  product: CrateMedicalSupplies
+  cost: 2400
+  category: cargoproduct-category-name-medical
+  group: ShipSyndicateMarket

@@ -5,7 +5,7 @@ meta:
   forkId: ""
   forkVersion: ""
   time: 04/18/2026 13:12:33
-  entityCount: 31
+  entityCount: 32
 maps: []
 grids:
 - 1
@@ -191,6 +191,13 @@ entities:
     components:
     - type: Transform
       pos: 0.5,1.5
+      parent: 1
+- proto: ComputerShipCargo
+  entities:
+  - uid: 32
+    components:
+    - type: Transform
+      pos: 2.5,1.5
       parent: 1
 - proto: ComputerStationRecords
   entities:
