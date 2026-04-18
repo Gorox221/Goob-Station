@@ -1,5 +1,5 @@
 - type: roleLoadout
-  id: JobShipCaptainSyndicate
+  id: JobCaptainSyndicate
   groups:
   - Inventory
   - GroupTankHarness
@@ -20,7 +20,7 @@
   - AssistantEnvirogloves
 
 - type: roleLoadout
-  id: JobShipCaptainSolarConfederation
+  id: JobCaptainSolarConfederation
   groups:
   - Inventory
   - GroupTankHarness

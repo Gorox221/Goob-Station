@@ -1,8 +1,8 @@
 - type: job
-  id: ShipCaptainSyndicate
+  id: CaptainSyndicate
   name: job-name-captain-syndicate
   description: job-description-captain-syndicate
-  playTimeTracker: JobShipCaptainSyndicate
+  playTimeTracker: JobCaptainSyndicate
   startingGear: PassengerGear
   icon: JobIconCaptain
   joinNotifyCrew: false

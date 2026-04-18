@@ -1,0 +1,19 @@
+- type: department
+  id: SolarConfederation
+  name: department-SolarConfederation
+  description: department-SolarConfederation-description
+  color: "#E8C547"
+  weight: 10
+  editorHidden: false
+  roles:
+  - CaptainSolarConfederation
+
+- type: department
+  id: Syndicate
+  name: department-Syndicate
+  description: department-Syndicate-description
+  color: "#C0392B"
+  weight: 9
+  editorHidden: false
+  roles:
+  - CaptainSyndicate
