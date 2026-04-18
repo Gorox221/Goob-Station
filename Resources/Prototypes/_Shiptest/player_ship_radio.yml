@@ -1,0 +1,15 @@
+# Radio channels for player ships are registered at runtime (see PlayerShipSpawnSystem)
+# with keycode "я" and a random frequency (handheld-style). This file only defines the key item.
+
+- type: entity
+  parent: EncryptionKey
+  name: ship radio encryption key
+  description: A key tuned to your vessel's internal radio channel
+  id: EncryptionKeyPlayerShip
+  components:
+  - type: EncryptionKey
+    channels: []
+  - type: Sprite
+    layers:
+    - state: crypt_orange
+    - state: ai_label

@@ -7,6 +7,8 @@ using Content.Shared.Interaction;
 using Content.Shared.Inventory;
 using Content.Shared.PDA;
 using Content.Shared.Popups;
+using Content.Shared.Radio.Components;
+using Robust.Shared.Containers;
 
 namespace Content.Server._Shiptest.ShipAccess;
 
@@ -19,6 +21,7 @@ public sealed class PlayerShipHullGrantSystem : EntitySystem
     [Dependency] private readonly InventorySystem _inventory = default!;
     [Dependency] private readonly StationSystem _station = default!;
     [Dependency] private readonly SharedPopupSystem _popup = default!;
+    [Dependency] private readonly SharedContainerSystem _container = default!;
 
     public override void Initialize()
     {
@@ -86,6 +89,7 @@ public sealed class PlayerShipHullGrantSystem : EntitySystem
             return;
 
         TryGrantHullOnId(args.Mob, hull.Token);
+        TryGrantShipRadioKey(args.Mob, hull.RadioChannelProtoId);
     }
 
     public void TryGrantHullOnId(EntityUid mob, string token)
@@ -102,5 +106,44 @@ public sealed class PlayerShipHullGrantSystem : EntitySystem
             grant.Tokens.Add(token);
 
         Dirty(card, grant);
+    }
+
+    /// <summary>
+    /// Inserts a ship-specific encryption key into the mob's headset so crew share a private long-range channel.
+    /// </summary>
+    public void TryGrantShipRadioKey(EntityUid mob, string? channelProtoId)
+    {
+        if (string.IsNullOrEmpty(channelProtoId))
+            return;
+
+        if (!_inventory.TryGetSlotEntity(mob, "ears", out var headsetUid))
+            return;
+
+        if (!TryComp<EncryptionKeyHolderComponent>(headsetUid!.Value, out var holder))
+            return;
+
+        if (holder.Channels.Contains(channelProtoId))
+            return;
+
+        if (holder.KeyContainer.ContainedEntities.Count >= holder.KeySlots)
+            return;
+
+        var key = EntityManager.SpawnEntity(PlayerShipRadioConstants.EncryptionKeyPrototypeId, Transform(headsetUid.Value).Coordinates);
+        if (!TryComp<EncryptionKeyComponent>(key, out var keyComp))
+        {
+            EntityManager.QueueDeleteEntity(key);
+            return;
+        }
+
+        keyComp.Channels.Clear();
+        keyComp.Channels.Add(channelProtoId);
+        keyComp.DefaultChannel = channelProtoId;
+        Dirty(key, keyComp);
+
+        if (!_container.Insert(key, holder.KeyContainer))
+        {
+            EntityManager.QueueDeleteEntity(key);
+            return;
+        }
     }
 }

@@ -8,4 +8,10 @@ public sealed partial class PlayerShipHullAccessComponent : Component
 {
     [ViewVariables(VVAccess.ReadWrite)]
     public string Token = "";
+
+    /// <summary>
+    /// Pooled radio channel prototype id for this ship (long-range; no telecomms).
+    /// </summary>
+    [ViewVariables(VVAccess.ReadWrite)]
+    public string? RadioChannelProtoId;
 }

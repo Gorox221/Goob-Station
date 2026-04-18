@@ -30,6 +30,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 using System.Collections.Frozen;
+using System.Linq;
 using Content.Shared._Starlight.CollectiveMind; // Goobstation - Starlight collective mind port
 using System.Text.RegularExpressions;
 using Content.Shared.Popups;
@@ -76,9 +77,11 @@ public abstract class SharedChatSystem : EntitySystem
     [Dependency] private readonly SharedPopupSystem _popup = default!;
 
     /// <summary>
-    /// Cache of the keycodes for faster lookup.
+    /// Cache of the keycodes for faster lookup (keys are case-insensitive).
     /// </summary>
-    private FrozenDictionary<char, RadioChannelPrototype> _keyCodes = default!;
+    private FrozenDictionary<string, RadioChannelPrototype> _keyCodes = default!;
+
+    private int _maxRadioKeyLength = 1;
 
     // Goobstation - Starlight collective mind port
     private FrozenDictionary<char, CollectiveMindPrototype> _mindKeyCodes = default!;
@@ -104,8 +107,16 @@ public abstract class SharedChatSystem : EntitySystem
 
     private void CacheRadios()
     {
-        _keyCodes = _prototypeManager.EnumeratePrototypes<RadioChannelPrototype>()
-            .ToFrozenDictionary(x => x.KeyCode);
+        var withKeys = _prototypeManager.EnumeratePrototypes<RadioChannelPrototype>()
+            .Where(p => !string.IsNullOrEmpty(p.KeyCode))
+            .ToList();
+
+        _maxRadioKeyLength = withKeys.Count == 0 ? 1 : withKeys.Max(p => p.KeyCode.Length);
+
+        // Keys normalized (sandbox disallows StringComparer in Content.Shared).
+        _keyCodes = withKeys.ToFrozenDictionary(
+            static x => x.KeyCode.ToLowerInvariant(),
+            static x => x);
     }
 
     // Goobstation - Starlight collective mind port
@@ -162,11 +173,21 @@ public abstract class SharedChatSystem : EntitySystem
         if (!(input.StartsWith(RadioChannelPrefix) || input.StartsWith(RadioChannelAltPrefix)))
             return;
 
-        if (!_keyCodes.TryGetValue(char.ToLower(input[1]), out _))
+        var rest = input.Substring(1);
+        if (rest.Length == 0)
             return;
 
-        prefix = input[..2];
-        output = input[2..];
+        var maxLen = Math.Min(rest.Length, _maxRadioKeyLength);
+        for (var len = maxLen; len >= 1; len--)
+        {
+            var candidate = rest[..len];
+            if (_keyCodes.TryGetValue(candidate.ToLowerInvariant(), out _))
+            {
+                prefix = input[..(1 + len)];
+                output = input[(1 + len)..];
+                return;
+            }
+        }
     }
 
     /// <summary>
@@ -210,11 +231,22 @@ public abstract class SharedChatSystem : EntitySystem
             return true;
         }
 
-        var channelKey = input[1];
-        channelKey = char.ToLower(channelKey);
-        output = SanitizeMessageCapital(input[2..].TrimStart());
+        var rest = input.Substring(1);
+        var maxLen = Math.Min(rest.Length, _maxRadioKeyLength);
+        for (var len = maxLen; len >= 1; len--)
+        {
+            var candidate = rest[..len];
+            if (_keyCodes.TryGetValue(candidate.ToLowerInvariant(), out var resolved))
+            {
+                channel = resolved;
+                output = SanitizeMessageCapital(rest[len..].TrimStart());
+                return true;
+            }
+        }
 
-        if (channelKey == DefaultChannelKey)
+        output = SanitizeMessageCapital(rest[1..].TrimStart());
+
+        if (char.ToLower(rest[0]) == DefaultChannelKey)
         {
             var ev = new GetDefaultRadioChannelEvent();
             RaiseLocalEvent(source, ev);
@@ -224,9 +256,9 @@ public abstract class SharedChatSystem : EntitySystem
             return true;
         }
 
-        if (!_keyCodes.TryGetValue(channelKey, out channel) && !quiet)
+        if (!quiet)
         {
-            var msg = Loc.GetString("chat-manager-no-such-channel", ("key", channelKey));
+            var msg = Loc.GetString("chat-manager-no-such-channel", ("key", rest[0]));
             _popup.PopupEntity(msg, source, source);
         }
 

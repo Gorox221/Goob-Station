@@ -31,10 +31,10 @@ public sealed partial class RadioChannelPrototype : IPrototype
     public string LocalizedName => Loc.GetString(Name);
 
     /// <summary>
-    /// Single-character prefix to determine what channel a message should be sent to.
+    /// Prefix after the radio colon (<c>:</c>) to select this channel. Usually one character; may be several (e.g. ship channels).
     /// </summary>
     [DataField("keycode")]
-    public char KeyCode { get; private set; } = '\0';
+    public string KeyCode { get; private set; } = "";
 
     [DataField("frequency")]
     public int Frequency { get; private set; } = 0;

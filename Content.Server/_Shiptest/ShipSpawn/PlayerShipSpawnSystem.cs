@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
@@ -16,6 +18,7 @@ using Content.Shared.GameTicking;
 using Content.Shared.Roles;
 using Content.Shared.Station;
 using Content.Shared.Station.Components;
+using Content.Shared.Radio;
 using Robust.Shared.EntitySerialization.Systems;
 using Robust.Shared.Player;
 using Robust.Shared.Map;
@@ -27,6 +30,7 @@ using Robust.Shared.Serialization.Manager;
 using Robust.Shared.Serialization.Markdown.Mapping;
 using Robust.Shared.Serialization.Markdown.Sequence;
 using Robust.Shared.Serialization.Markdown.Value;
+using Robust.Shared.Upload;
 using static Robust.Shared.Prototypes.EntityPrototype;
 using TransformSystem = Robust.Server.GameObjects.TransformSystem;
 
@@ -44,6 +48,7 @@ public sealed class PlayerShipSpawnSystem : EntitySystem
     [Dependency] private readonly ISerializationManager _serialization = default!;
     [Dependency] private readonly TransformSystem _transform = default!;
     [Dependency] private readonly AccessReaderSystem _accessReader = default!;
+    [Dependency] private readonly IGamePrototypeLoadManager _runtimePrototypes = default!;
 
     /// <summary>
     /// Player ship blueprint ids that have already been spawned this round (one per id).
@@ -230,6 +235,9 @@ public sealed class PlayerShipSpawnSystem : EntitySystem
     {
         var hull = EnsureComp<PlayerShipHullAccessComponent>(shipStation);
         hull.Token = Convert.ToHexString(RandomNumberGenerator.GetBytes(16));
+        hull.RadioChannelProtoId = null;
+
+        TryRegisterPlayerShipRadioChannel(hull);
 
         var query = AllEntityQuery<AccessReaderComponent, TransformComponent>();
         while (query.MoveNext(out var uid, out var reader, out var xform))
@@ -244,5 +252,63 @@ public sealed class PlayerShipSpawnSystem : EntitySystem
             hullReader.RequiredHullToken = hull.Token;
             Dirty(uid, hullReader);
         }
+    }
+
+    /// <summary>
+    /// Registers a unique long-range radio channel (random multi-char key, e.g. <c>:якуй</c>; frequency like a handheld).
+    /// Uses <see cref="IGamePrototypeLoadManager"/> so the prototype is replicated to all clients (required for chat UI).
+    /// </summary>
+    private void TryRegisterPlayerShipRadioChannel(PlayerShipHullAccessComponent hull)
+    {
+        var channelId = $"PlayerShipRx{Convert.ToHexString(RandomNumberGenerator.GetBytes(4))}";
+        var radioKey = GenerateUniqueShipRadioKey();
+        var frequency = _random.Next(
+            PlayerShipRadioConstants.DynamicFrequencyMin,
+            PlayerShipRadioConstants.DynamicFrequencyMaxExclusive);
+
+        var yaml = $"- type: radioChannel\n" +
+                   $"  id: {channelId}\n" +
+                   "  name: chat-radio-player-ship\n" +
+                   $"  keycode: \"{radioKey}\"\n" +
+                   $"  frequency: {frequency}\n" +
+                   "  color: \"#6ec6ff\"\n" +
+                   "  longRange: true\n";
+
+        try
+        {
+            _runtimePrototypes.SendGamePrototype(yaml);
+            hull.RadioChannelProtoId = channelId;
+        }
+        catch (Exception e)
+        {
+            Log.Error($"Failed to register runtime player-ship radio channel prototype {channelId}: {e}");
+        }
+    }
+
+    /// <summary>
+    /// Builds a key that does not collide with any existing <see cref="Content.Shared.Radio.RadioChannelPrototype"/> keycode
+    /// (dictionary is keyed by keycode string; duplicates throw).
+    /// </summary>
+    private string GenerateUniqueShipRadioKey()
+    {
+        for (var attempt = 0; attempt < 64; attempt++)
+        {
+            Span<char> buf = stackalloc char[PlayerShipRadioConstants.ShipRadioKeyLength];
+            for (var i = 0; i < buf.Length; i++)
+            {
+                buf[i] = PlayerShipRadioConstants.ShipRadioKeyAlphabet[
+                    _random.Next(PlayerShipRadioConstants.ShipRadioKeyAlphabet.Length)];
+            }
+
+            var key = new string(buf);
+            if (!_proto.EnumeratePrototypes<RadioChannelPrototype>()
+                    .Any(p => !string.IsNullOrEmpty(p.KeyCode)
+                              && string.Equals(p.KeyCode, key, StringComparison.OrdinalIgnoreCase)))
+            {
+                return key;
+            }
+        }
+
+        return Convert.ToHexString(RandomNumberGenerator.GetBytes(2)).ToLowerInvariant();
     }
 }
