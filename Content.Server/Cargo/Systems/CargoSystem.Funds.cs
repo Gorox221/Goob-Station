@@ -32,10 +32,7 @@ public sealed partial class CargoSystem
 
         if (args.Account == ent.Comp.Account ||
             args.Amount <= 0 ||
-            args.Amount > GetBalanceFromAccount((station, bank), ent.Comp.Account) * ent.Comp.TransferLimit)
-            return;
-
-        if (Timing.CurTime < ent.Comp.NextAccountActionTime)
+            args.Amount > GetBalanceFromAccount((station, bank), ent.Comp.Account))
             return;
 
         if (!_accessReaderSystem.IsAllowed(args.Actor, ent))
@@ -45,8 +42,16 @@ public sealed partial class CargoSystem
             return;
         }
 
-        ent.Comp.NextAccountActionTime = Timing.CurTime + ent.Comp.AccountActionDelay;
-        UpdateBankAccount((station, bank), -args.Amount,  ent.Comp.Account, dirty: false);
+        if (args.Account != null && !ent.Comp.AllowDepartmentFundTransfers)
+        {
+            ConsolePopup(args.Actor, Loc.GetString("cargo-console-fund-transfer-departments-disabled"));
+            PlayDenySound(ent, ent.Comp);
+            return;
+        }
+
+        // Must replicate bank + console state so clients see the new balance.
+        UpdateBankAccount((station, bank), -args.Amount, ent.Comp.Account, dirty: true);
+        Dirty(ent);
         _audio.PlayPvs(ApproveSound, ent);
 
         var tryGetIdentityShortInfoEvent = new TryGetIdentityShortInfoEvent(ent, args.Actor);

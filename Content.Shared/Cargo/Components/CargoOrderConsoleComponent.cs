@@ -29,6 +29,12 @@ public sealed partial class CargoOrderConsoleComponent : Component
     [DataField]
     public ProtoId<CargoAccountPrototype> Account = "Cargo";
 
+    /// <summary>
+    /// If false, cargo account funds may only be withdrawn as cash from this console, not transferred to other department accounts.
+    /// </summary>
+    [DataField, AutoNetworkedField]
+    public bool AllowDepartmentFundTransfers = true;
+
     [DataField]
     public SoundSpecifier ErrorSound = new SoundCollectionSpecifier("CargoError");
 
@@ -51,7 +57,7 @@ public sealed partial class CargoOrderConsoleComponent : Component
     /// The maximum percent of total funds that can be transferred or withdrawn in one action.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public float BaseTransferLimit = 0.20f;
+    public float BaseTransferLimit = 1f;
 
     /// <summary>
     /// The time at which account actions can be performed again.
@@ -66,13 +72,13 @@ public sealed partial class CargoOrderConsoleComponent : Component
     /// The minimum time between account actions when <see cref="TransferUnbounded"/> is false
     /// </summary>
     [DataField]
-    public TimeSpan BaseAccountActionDelay = TimeSpan.FromMinutes(1);
+    public TimeSpan BaseAccountActionDelay;
 
     /// <summary>
     /// The minimum time between account actions when <see cref="TransferUnbounded"/> is true
     /// </summary>
     [DataField]
-    public TimeSpan UnboundedAccountActionDelay = TimeSpan.FromSeconds(10);
+    public TimeSpan UnboundedAccountActionDelay;
 
     /// <summary>
     /// The stack representing cash dispensed on withdrawals.

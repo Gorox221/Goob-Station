@@ -43,8 +43,6 @@ namespace Content.Client.Cargo.UI
     [GenerateTypedNameReferences]
     public sealed partial class CargoConsoleMenu : FancyWindow
     {
-        [Dependency] private readonly IGameTiming _timing = default!;
-
         private readonly IEntityManager _entityManager;
         private readonly IPrototypeManager _protoManager;
         private readonly CargoSystem _cargoSystem;
@@ -115,7 +113,8 @@ namespace Content.Client.Cargo.UI
                     !_entityManager.TryGetComponent<StationBankAccountComponent>(_station, out var bank))
                     return true;
 
-                return val >= 0 && val <= (int) (console.TransferLimit * bank.Accounts[console.Account]);
+                var bal = bank.Accounts.GetValueOrDefault(console.Account);
+                return val >= 0 && val <= bal;
             };
 
             AccountActionButton.OnPressed += _ =>
@@ -326,16 +325,19 @@ namespace Content.Client.Cargo.UI
             ActionOptions.Clear();
             ActionOptions.AddItem(Loc.GetString("cargo-console-menu-account-action-option-withdraw"), i);
             i++;
-            foreach (var account in bank.Accounts.Keys)
+            if (console.AllowDepartmentFundTransfers)
             {
-                if (account == console.Account)
-                    continue;
-                var accountProto = _protoManager.Index(account);
-                ActionOptions.AddItem(Loc.GetString("cargo-console-menu-account-action-option-transfer",
-                    ("code", Loc.GetString(accountProto.Code))),
-                    i);
-                ActionOptions.SetItemMetadata(i, account);
-                i++;
+                foreach (var account in bank.Accounts.Keys)
+                {
+                    if (account == console.Account)
+                        continue;
+                    var accountProto = _protoManager.Index(account);
+                    ActionOptions.AddItem(Loc.GetString("cargo-console-menu-account-action-option-transfer",
+                            ("code", Loc.GetString(accountProto.Code))),
+                        i);
+                    ActionOptions.SetItemMetadata(i, account);
+                    i++;
+                }
             }
         }
 
@@ -355,14 +357,15 @@ namespace Content.Client.Cargo.UI
             }
 
             var balance = _cargoSystem.GetBalanceFromAccount((_station.Value, bankAccount), orderConsole.Account);
+            if (TransferSpinBox.Value > balance)
+                TransferSpinBox.Value = balance;
+
             PointsLabel.Text = Loc.GetString("cargo-console-menu-points-amount", ("amount", balance));
             PointsLabelFundsTransfer.Text = Loc.GetString("cargo-console-menu-points-amount", ("amount", balance)); // Goobstation
-            TransferLimitLabel.Text = Loc.GetString("cargo-console-menu-account-action-transfer-limit-amount", ("amount", Math.Floor(balance * orderConsole.TransferLimit))); // Goobstation
+            TransferLimitLabel.Text = Loc.GetString("cargo-console-menu-account-action-transfer-limit-amount", ("amount", balance)); // Goobstation — per-action max = full balance
 
             UnlimitedNotifier.Visible = orderConsole.TransferUnbounded;
-            AccountActionButton.Disabled = TransferSpinBox.Value <= 0 ||
-                                           TransferSpinBox.Value > bankAccount.Accounts[orderConsole.Account] * orderConsole.TransferLimit ||
-                                           _timing.CurTime < orderConsole.NextAccountActionTime;
+            AccountActionButton.Disabled = TransferSpinBox.Value <= 0 || TransferSpinBox.Value > balance;
 
             RightPart.Visible = orderConsole.Mode != CargoOrderConsoleMode.PrintSlip; // Goobstation
         }

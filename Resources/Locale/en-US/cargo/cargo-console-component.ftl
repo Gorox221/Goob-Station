@@ -53,6 +53,7 @@ cargo-console-menu-account-action-option-transfer = Transfer Funds to {$code}
 
 # Orders
 cargo-console-order-not-allowed = Access not allowed
+cargo-console-fund-transfer-departments-disabled = This console cannot transfer funds to other departments.
 cargo-console-station-not-found = No available station
 cargo-console-invalid-product = Invalid product ID
 cargo-console-too-many = Too many approved orders

@@ -8,5 +8,6 @@
     allowedGroups:
     - ShipSolarConfederationMarket
     - ShipSyndicateMarket
+    allowDepartmentFundTransfers: false
   - type: AccessReader
     access: []
