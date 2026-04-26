@@ -53,6 +53,7 @@
     ignoreWeaponGrid: true
     damage:
       types:
+        Structural: 6
         Piercing: 45
   - type: TimedDespawn
     lifetime: 5.5833
@@ -72,7 +73,7 @@
     ignoreWeaponGrid: true
     damage:
       types:
-        Structural: 40
+        Structural: 38
         Piercing: 85
   - type: TimedDespawn
     lifetime: 8.45
@@ -97,7 +98,7 @@
     penetrationThreshold: 0
     damage:
       types:
-        Structural: 500
-        Piercing: 230
+        Structural: 300
+        Piercing: 50
   - type: TimedDespawn
     lifetime: 5.7929
