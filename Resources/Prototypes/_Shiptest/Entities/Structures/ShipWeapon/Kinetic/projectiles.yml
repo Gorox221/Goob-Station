@@ -1,0 +1,103 @@
+
+
+- type: entity
+  id: ShipKinPhysBase
+  parent: BaseBullet
+  abstract: true
+  categories: [ HideSpawnMenu ]
+  components:
+  # BaseBullet only masks Impassable|BulletImpassable; some structures (e.g. HalfWallLayer:
+  # Mid+Low only) never overlap that mask, so projectiles "tunnel" with no hit. Use the same
+  # vertical bands as the engine fly-by fixture + bullet layers so most walls register collision.
+  - type: Fixtures
+    fixtures:
+      projectile:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.1,-0.10,0.1,0.30"
+        hard: false
+        mask:
+        - Impassable
+        - BulletImpassable
+        - HighImpassable
+        - MidImpassable
+        - LowImpassable
+      fly-by:
+        shape: !type:PhysShapeCircle
+          radius: 1.5
+        layer:
+        - Impassable
+        - MidImpassable
+        - HighImpassable
+        - LowImpassable
+        hard: false
+  - type: ShipWeaponProjectile
+  - type: RadarBlip
+    requireNoGrid: true
+    shape: triangle
+  - type: Projectile
+    ignoreWeaponGrid: true
+
+# --- Machine gun (no structural) ---
+
+- type: entity
+  id: ShipProjectile35mm
+  name: 35mm shell
+  parent: ShipKinPhysBase
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: piercing
+  - type: Projectile
+    ignoreWeaponGrid: true
+    damage:
+      types:
+        Piercing: 45
+  - type: TimedDespawn
+    lifetime: 5.5833
+
+# --- Autocannon (higher damage, structural) ---
+
+- type: entity
+  id: ShipProjectile57mm
+  name: 57mm AC round
+  parent: ShipKinPhysBase
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: practice
+  - type: Projectile
+    ignoreWeaponGrid: true
+    damage:
+      types:
+        Structural: 40
+        Piercing: 85
+  - type: TimedDespawn
+    lifetime: 8.45
+
+# --- Gauss artillery (pierce hull / walls) ---
+
+- type: entity
+  id: ShipGaussBolt
+  name: ferromagnetic bolt
+  parent: ShipKinPhysBase
+  description: Punches through matter until lifetime expires. Same caliber as other ship kinetic.
+  components:
+  - type: Sprite
+    sprite: Objects/Fun/immovable_rod.rsi
+    layers:
+    - state: icon
+  - type: PointLight
+    color: "#19AFFF"
+  - type: Projectile
+    ignoreWeaponGrid: true
+    penetrate: true
+    penetrationThreshold: 0
+    damage:
+      types:
+        Structural: 500
+        Piercing: 230
+  - type: TimedDespawn
+    lifetime: 5.7929

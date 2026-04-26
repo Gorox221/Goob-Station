@@ -1,0 +1,188 @@
+- type: entity
+  id: WeaponShuttleKineticGaussT1
+  name: гаусс-артиллерия FG-13 «Лоренц-Форс»
+  parent: BallisticArtillery
+  description: "Электромагнитный ускоритель масс, разгоняющий снаряд при помощи катушек. Ферромагнитный снаряд пробивает даже пластитановую броню, но крайне плох против энергетических щитов. Низкий темп стрельбы взамен на высокую точность."
+  components:
+  - type: StaticPrice
+    price: 10000
+  - type: Sprite
+    sprite: _Mono/Objects/ShuttleWeapons/charon.rsi
+    layers:
+    - state: space_artillery
+  - type: Battery
+    maxCharge: 8000
+    startingCharge: 8000
+  - type: ExaminableBattery
+  - type: Appearance
+  - type: AmmoCounter
+  - type: AutoShootGun
+  - type: GunSignalControl
+  - type: WirelessNetworkConnection
+    range: 600
+  - type: DeviceLinkSink
+    ports:
+    - SpaceArtilleryFire
+    - Toggle
+  - type: Gun
+    fireRate: 0.05
+    projectileSpeed: 212.33
+    minAngle: 0.35
+    maxAngle: 1.1
+    angleIncrease: 0.05
+    angleDecay: 2
+    currentAngle: 0.4
+    selectedMode: SemiAuto
+    availableModes:
+    - SemiAuto
+    soundGunshot:
+      path: /Audio/_Mono/Weapons/Guns/Gunshots/leviathan_fire.ogg
+    soundEmpty:
+      path: /Audio/Weapons/Guns/EmptyAlarm/smg_empty_alarm.ogg
+  - type: BatterySelfRecharger
+    autoRecharge: true
+    autoRechargeRate: 4
+  - type: SpaceArtillery
+    powerChargeRate: 300
+    powerUsePassive: 500
+  - type: Actions
+  - type: BallisticAmmoProvider
+    proto: CartridgeShipGaussBolt
+    capacity: 1
+    mayTransfer: true
+    whitelist:
+      tags:
+      - CartridgeShipGaussBolt
+  - type: RadarBlip
+    radarColor: "#19AFFF"
+    scale: 1.4
+  - type: ShipGunType
+    shipType: Ballistic
+  - type: ShipGunClass
+    shipClass: Medium
+
+- type: entity
+  id: WeaponShuttleKineticGaussT2
+  name: гаусс-артиллерия TG-23 «Тессеракт»
+  parent: BallisticArtillery
+  description: "Электромагнитный ускоритель масс второго поколения, способный заряжаться сразу двумя ферромагнитными болтами. Имеет чуть больший темп стрельбы, по сравнению с ускорителями масс первого поколения."
+  components:
+  - type: StaticPrice
+    price: 16000
+  - type: Sprite
+    sprite: _Mono/Objects/ShuttleWeapons/charon.rsi
+    layers:
+    - state: space_artillery
+  - type: Battery
+    maxCharge: 10000
+    startingCharge: 10000
+  - type: ExaminableBattery
+  - type: Appearance
+  - type: AmmoCounter
+  - type: AutoShootGun
+  - type: GunSignalControl
+  - type: WirelessNetworkConnection
+    range: 600
+  - type: DeviceLinkSink
+    ports:
+    - SpaceArtilleryFire
+    - Toggle
+  - type: Gun
+    fireRate: 0.085
+    projectileSpeed: 212.33
+    minAngle: 0.28
+    maxAngle: 0.95
+    angleIncrease: 0.04
+    angleDecay: 2.5
+    currentAngle: 0.32
+    selectedMode: SemiAuto
+    availableModes:
+    - SemiAuto
+    soundGunshot:
+      path: /Audio/_Mono/Weapons/Guns/Gunshots/leviathan_fire.ogg
+    soundEmpty:
+      path: /Audio/Weapons/Guns/EmptyAlarm/smg_empty_alarm.ogg
+  - type: BatterySelfRecharger
+    autoRecharge: true
+    autoRechargeRate: 4
+  - type: SpaceArtillery
+    powerChargeRate: 320
+    powerUsePassive: 480
+  - type: Actions
+  - type: BallisticAmmoProvider
+    proto: CartridgeShipGaussBolt
+    capacity: 2
+    mayTransfer: true
+    whitelist:
+      tags:
+      - CartridgeShipGaussBolt
+  - type: RadarBlip
+    radarColor: "#19AFFF"
+    scale: 1.45
+  - type: ShipGunType
+    shipType: Ballistic
+  - type: ShipGunClass
+    shipClass: Medium
+
+- type: entity
+  id: WeaponShuttleKineticGaussT3
+  name: гаусс-артиллерия KG-47 «Апогей»
+  parent: BallisticArtillery
+  description: "Электромагнитный ускоритель масс второго поколения, способный заряжаться сразу тремя ферромагнитными болтами. Имеет чуть больший темп стрельбы, по сравнению с прошлыми версиями, а также улучшенный досылающий механизм. Стреляет на дальность 1230м."
+  components:
+  - type: StaticPrice
+    price: 24000
+  - type: Sprite
+    sprite: _Mono/Objects/ShuttleWeapons/charon.rsi
+    layers:
+    - state: space_artillery
+  - type: Battery
+    maxCharge: 12000
+    startingCharge: 12000
+  - type: ExaminableBattery
+  - type: Appearance
+  - type: AmmoCounter
+  - type: AutoShootGun
+  - type: GunSignalControl
+  - type: WirelessNetworkConnection
+    range: 600
+  - type: DeviceLinkSink
+    ports:
+    - SpaceArtilleryFire
+    - Toggle
+  - type: Gun
+    fireRate: 0.15
+    projectileSpeed: 212.33
+    minAngle: 0.22
+    maxAngle: 0.75
+    angleIncrease: 0.03
+    angleDecay: 3
+    currentAngle: 0.26
+    selectedMode: SemiAuto
+    availableModes:
+    - SemiAuto
+    soundGunshot:
+      path: /Audio/_Mono/Weapons/Guns/Gunshots/leviathan_fire.ogg
+    soundEmpty:
+      path: /Audio/Weapons/Guns/EmptyAlarm/smg_empty_alarm.ogg
+  - type: BatterySelfRecharger
+    autoRecharge: true
+    autoRechargeRate: 4
+  - type: SpaceArtillery
+    powerChargeRate: 340
+    powerUsePassive: 460
+  - type: Actions
+  - type: BallisticAmmoProvider
+    proto: CartridgeShipGaussBolt
+    capacity: 3
+    mayTransfer: true
+    whitelist:
+      tags:
+      - CartridgeShipGaussBolt
+  - type: RadarBlip
+    radarColor: "#19AFFF"
+    scale: 1.5
+  - type: ShipGunType
+    shipType: Ballistic
+  - type: ShipGunClass
+    shipClass: Medium

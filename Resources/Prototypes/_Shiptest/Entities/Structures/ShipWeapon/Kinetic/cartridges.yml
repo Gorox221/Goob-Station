@@ -1,0 +1,59 @@
+- type: entity
+  id: BaseCartridgeShipKinetic
+  name: ship kinetic round
+  parent: BaseCartridge
+  abstract: true
+  description: Artillery round for ship kinetic weapons.
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Ammunition/Casings/large_casing.rsi
+    layers:
+    - state: base
+      map: ["enum.AmmoVisualLayers.Base"]
+  - type: Appearance
+  - type: SpentAmmoVisuals
+  - type: StaticPrice
+    price: 5
+
+# --- Machine gun ---
+
+- type: entity
+  id: CartridgeShip35mm
+  name: 35mm cartridge
+  parent: BaseCartridgeShipKinetic
+  components:
+  - type: Tag
+    tags:
+    - Cartridge
+    - CartridgeShip35mm
+  - type: CartridgeAmmo
+    proto: ShipProjectile35mm
+
+# --- Autocannon ---
+
+- type: entity
+  id: CartridgeShip57mm
+  name: 57mm cartridge
+  parent: BaseCartridgeShipKinetic
+  components:
+  - type: Tag
+    tags:
+    - Cartridge
+    - CartridgeShip57mm
+  - type: CartridgeAmmo
+    proto: ShipProjectile57mm
+
+# --- Gauss ---
+
+- type: entity
+  id: CartridgeShipGaussBolt
+  name: ferromagnetic bolt shell
+  parent: BaseCartridgeShipKinetic
+  description: Кинетический вольфрамовый снаряд для гаусс-артиллерии.
+  components:
+  - type: Tag
+    tags:
+    - Cartridge
+    - CartridgeShipGaussBolt
+  - type: CartridgeAmmo
+    proto: ShipGaussBolt

@@ -77,3 +77,25 @@
   - type: Anchorable
     delay: 480
   - type: Pullable
+
+# Kinetic ship guns: встроенный лоток (BallisticAmmoProvider) с патронами; ракетные пуски — съёмные магазины.
+- type: entity
+  id: MagFedBallisticArtilleryUnanchorable
+  parent: BallisticArtilleryUnanchorable
+  abstract: true
+  components:
+  - type: ContainerContainer
+    containers:
+      gun_magazine: !type:ContainerSlot
+      machine_board: !type:Container
+      machine_parts: !type:Container
+  - type: MagazineAmmoProvider
+
+- type: entity
+  id: MagFedBallisticArtillery
+  parent: MagFedBallisticArtilleryUnanchorable
+  abstract: true
+  components:
+  - type: Anchorable
+    delay: 480
+  - type: Pullable

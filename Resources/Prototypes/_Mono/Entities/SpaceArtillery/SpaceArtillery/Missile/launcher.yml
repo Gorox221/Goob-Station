@@ -3,7 +3,7 @@
 - type: entity
   id: WeaponShuttleMissileVespera
   name: ADMP VESPERA missile launcher
-  parent: BallisticArtillery
+  parent: MagFedBallisticArtillery
   description: A rapid-fire swarm missile pod manufactured by Aetherion Dynamics. Can be remotely activated, or linked up to a GCS.
   components:
   - type: StaticPrice
@@ -35,9 +35,16 @@
     powerUsePassive: 750
     powerUseActive: 0
   - type: Actions
-  - type: ProjectileBatteryAmmoProvider
-    proto: ShipMissileASM417
-    fireCost: 2000 #CorvaxGoob-ShuttleGuns-Rebalance
+  - type: ItemSlots
+    slots:
+      gun_magazine:
+        startingItem: MagazineMissileASM417
+        priority: 1
+        whitelist:
+          tags:
+          - MagazineMissileASM417
+        insertSound: /Audio/Weapons/Guns/MagIn/batrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/batrifle_magout.ogg
   - type: RadarBlip
     radarColor: "#FCBA03"
     scale: 2
@@ -51,7 +58,7 @@
 - type: entity
   id: WeaponShuttleMissileWhirlwind
   name: ASM Whirlwind missile launcher
-  parent: BallisticArtillery
+  parent: MagFedBallisticArtillery
   description: ASM-501 Smerchs heavy torpedo launcher. Can be remotely activated, or linked up to a GCS.
   components:
   - type: StaticPrice
@@ -82,9 +89,16 @@
     autoRecharge: true
     autoRechargeRate: 60
   - type: Actions
-  - type: ProjectileBatteryAmmoProvider
-    proto: ShipMissileASM501
-    fireCost: 350
+  - type: ItemSlots
+    slots:
+      gun_magazine:
+        startingItem: MagazineMissileASM501
+        priority: 1
+        whitelist:
+          tags:
+          - MagazineMissileASM501
+        insertSound: /Audio/Weapons/Guns/MagIn/batrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/batrifle_magout.ogg
   - type: RadarBlip
     radarColor: "#FCBA03"
     scale: 2.5
@@ -98,7 +112,7 @@
 - type: entity
   id: WeaponShuttleMissileVanyk
   name: ASM Vanyk missile launcher
-  parent: BallisticArtillery
+  parent: MagFedBallisticArtillery
   description: ASM-302 Vanyk basic guided missile pod. Can be remotely activated, or linked up to a GCS.
   components:
   - type: StaticPrice
@@ -126,9 +140,16 @@
     autoRecharge: true
     autoRechargeRate: 60
   - type: Actions
-  - type: ProjectileBatteryAmmoProvider
-    proto: ShipMissileASM302
-    fireCost: 300
+  - type: ItemSlots
+    slots:
+      gun_magazine:
+        startingItem: MagazineMissileASM302
+        priority: 1
+        whitelist:
+          tags:
+          - MagazineMissileASM302
+        insertSound: /Audio/Weapons/Guns/MagIn/batrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/batrifle_magout.ogg
   - type: SpaceArtillery
     powerChargeRate: 350
     powerUsePassive: 600
@@ -163,7 +184,7 @@
 - type: entity
   id: WeaponShuttleMissileTovek
   name: TOVEK missile launcher
-  parent: BallisticArtillery
+  parent: MagFedBallisticArtillery
   description: A hybrid EMP missile pod manufactured by Aetherion Dynamics. Deals both physical and EMP damage. Can be remotely activated, or linked up to a GCS.
   components:
   - type: StaticPrice
@@ -195,9 +216,16 @@
     powerUsePassive: 2500
     powerUseActive: 0
   - type: Actions
-  - type: ProjectileBatteryAmmoProvider
-    proto: ShipMissileASM557
-    fireCost: 12500
+  - type: ItemSlots
+    slots:
+      gun_magazine:
+        startingItem: MagazineMissileASM557
+        priority: 1
+        whitelist:
+          tags:
+          - MagazineMissileASM557
+        insertSound: /Audio/Weapons/Guns/MagIn/batrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/batrifle_magout.ogg
   - type: RadarBlip
     radarColor: "#035EFC"
     scale: 2

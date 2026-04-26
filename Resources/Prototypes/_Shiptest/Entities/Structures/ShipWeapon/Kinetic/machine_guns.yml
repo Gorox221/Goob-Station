@@ -1,0 +1,200 @@
+- type: entity
+  id: WeaponShuttleKineticMachineGunT1
+  name: 30мм корабельный пулемет RP-21 «Буран»
+  parent: MagFedBallisticArtillery
+  description: "Стационарный пулемет RP-21, предназначенный для пробития энергетических щитов и сбивания торпед. Имеет высокую скорострельность, но низкую точность."
+  components:
+  - type: StaticPrice
+    price: 3200
+  - type: Sprite
+    sprite: _Mono/Objects/ShuttleWeapons/50cal.rsi
+    layers:
+    - state: space_artillery
+  - type: Battery
+    maxCharge: 2000
+    startingCharge: 2000
+  - type: ExaminableBattery
+  - type: Appearance
+  - type: AmmoCounter
+  - type: AutoShootGun
+  - type: GunSignalControl
+  - type: WirelessNetworkConnection
+    range: 600
+  - type: DeviceLinkSink
+    ports:
+    - SpaceArtilleryFire
+    - Toggle
+  - type: Gun
+    fireRate: 5.0
+    projectileSpeed: 98.51
+    minAngle: 8
+    maxAngle: 26
+    angleIncrease: 2.3
+    angleDecay: 0.55
+    currentAngle: 10
+    selectedMode: FullAuto
+    availableModes:
+    - FullAuto
+    soundGunshot:
+      path: /Audio/_Mono/Weapons/Guns/Gunshots/slammer.ogg
+    soundEmpty:
+      path: /Audio/Weapons/Guns/Empty/lmg_empty.ogg
+  - type: BatterySelfRecharger
+    autoRecharge: true
+    autoRechargeRate: 2
+  - type: SpaceArtillery
+    powerChargeRate: 400
+    powerUsePassive: 220
+  - type: Actions
+  - type: MagazineAmmoProvider
+  - type: ItemSlots
+    slots:
+      gun_magazine:
+        startingItem: MagazineShip30mm
+        priority: 1
+        whitelist:
+          tags:
+          - MagazineShip30mm
+        insertSound: /Audio/Weapons/Guns/MagIn/batrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/batrifle_magout.ogg
+  - type: RadarBlip
+    radarColor: "#FF6666"
+    scale: 0.9
+  - type: ShipGunType
+    shipType: Ballistic
+  - type: ShipGunClass
+    shipClass: Medium
+
+- type: entity
+  id: WeaponShuttleKineticMachineGunT2
+  name: 30мм корабельный пулемет HTR-91 «Прибой»
+  parent: MagFedBallisticArtillery
+  description: "Скорострельный стационарный пулемет HTR-91. Имеет высокую скорострельность и улучшенный досылающий магазин. Стволы данного пулемета сделаны из более теплостойкого сплава, что уменьшает перегрев орудия, позволяя сохранять низкий разброс."
+  components:
+  - type: StaticPrice
+    price: 5550
+  - type: Sprite
+    sprite: _Mono/Objects/ShuttleWeapons/50cal.rsi
+    layers:
+    - state: space_artillery
+  - type: Battery
+    maxCharge: 2500
+    startingCharge: 2500
+  - type: ExaminableBattery
+  - type: Appearance
+  - type: AmmoCounter
+  - type: AutoShootGun
+  - type: GunSignalControl
+  - type: WirelessNetworkConnection
+    range: 600
+  - type: DeviceLinkSink
+    ports:
+    - SpaceArtilleryFire
+    - Toggle
+  - type: Gun
+    fireRate: 6.5
+    projectileSpeed: 98.51
+    minAngle: 5.5
+    maxAngle: 18
+    angleIncrease: 1.6
+    angleDecay: 0.85
+    currentAngle: 7.5
+    selectedMode: FullAuto
+    availableModes:
+    - FullAuto
+    soundGunshot:
+      path: /Audio/_Mono/Weapons/Guns/Gunshots/slammer.ogg
+    soundEmpty:
+      path: /Audio/Weapons/Guns/Empty/lmg_empty.ogg
+  - type: BatterySelfRecharger
+    autoRecharge: true
+    autoRechargeRate: 2
+  - type: SpaceArtillery
+    powerChargeRate: 450
+    powerUsePassive: 200
+  - type: Actions
+  - type: MagazineAmmoProvider
+  - type: ItemSlots
+    slots:
+      gun_magazine:
+        startingItem: MagazineShip30mm
+        priority: 1
+        whitelist:
+          tags:
+          - MagazineShip30mm
+        insertSound: /Audio/Weapons/Guns/MagIn/batrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/batrifle_magout.ogg
+  - type: RadarBlip
+    radarColor: "#FF6666"
+    scale: 0.95
+  - type: ShipGunType
+    shipType: Ballistic
+  - type: ShipGunClass
+    shipClass: Medium
+
+- type: entity
+  id: WeaponShuttleKineticMachineGunT3
+  name: 30мм корабельный пулемет KPJ-101 «Фарватер»
+  parent: MagFedBallisticArtillery
+  description: "KPJ-101 «Фарватер» - относительно дешевый тяжелый корабельный пулемет. Совмещает в себе скоростельность и точность. Крайне убойный, но не надеждный."
+  components:
+  - type: StaticPrice
+    price: 7500
+  - type: Sprite
+    sprite: _Mono/Objects/ShuttleWeapons/50cal.rsi
+    layers:
+    - state: space_artillery
+  - type: Battery
+    maxCharge: 3000
+    startingCharge: 3000
+  - type: ExaminableBattery
+  - type: Appearance
+  - type: AmmoCounter
+  - type: AutoShootGun
+  - type: GunSignalControl
+  - type: WirelessNetworkConnection
+    range: 600
+  - type: DeviceLinkSink
+    ports:
+    - SpaceArtilleryFire
+    - Toggle
+  - type: Gun
+    fireRate: 8.5
+    projectileSpeed: 98.51
+    minAngle: 3.2
+    maxAngle: 12
+    angleIncrease: 1.0
+    angleDecay: 1.35
+    currentAngle: 5
+    selectedMode: FullAuto
+    availableModes:
+    - FullAuto
+    soundGunshot:
+      path: /Audio/_Mono/Weapons/Guns/Gunshots/slammer.ogg
+    soundEmpty:
+      path: /Audio/Weapons/Guns/Empty/lmg_empty.ogg
+  - type: BatterySelfRecharger
+    autoRecharge: true
+    autoRechargeRate: 2
+  - type: SpaceArtillery
+    powerChargeRate: 500
+    powerUsePassive: 180
+  - type: Actions
+  - type: MagazineAmmoProvider
+  - type: ItemSlots
+    slots:
+      gun_magazine:
+        startingItem: MagazineShip30mm
+        priority: 1
+        whitelist:
+          tags:
+          - MagazineShip30mm
+        insertSound: /Audio/Weapons/Guns/MagIn/batrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/batrifle_magout.ogg
+  - type: RadarBlip
+    radarColor: "#FF6666"
+    scale: 1
+  - type: ShipGunType
+    shipType: Ballistic
+  - type: ShipGunClass
+    shipClass: Medium

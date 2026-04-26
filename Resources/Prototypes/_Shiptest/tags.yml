@@ -1,0 +1,14 @@
+- type: Tag
+  id: CartridgeShip35mm
+
+- type: Tag
+  id: CartridgeShip57mm
+
+- type: Tag
+  id: CartridgeShipGaussBolt
+
+- type: Tag
+  id: MagazineShip30mm
+
+- type: Tag
+  id: MagazineShip57mm

@@ -65,6 +65,7 @@
 
 using Content.Goobstation.Common.Projectiles;
 using Content.Goobstation.Common.Weapons.Penetration;
+using System.Numerics;
 using Content.Server.Administration.Logs;
 using Content.Server.Destructible;
 using Content.Server.Effects;
@@ -73,6 +74,7 @@ using Content.Shared.Camera;
 using Content.Shared.Damage;
 using Content.Shared.Database;
 using Content.Goobstation.Maths.FixedPoint;
+using Content.Shared._Mono.SpaceArtillery;
 using Content.Shared._Shitmed.Targeting;
 using Content.Shared.Projectiles;
 using Robust.Shared.Physics.Events;
@@ -103,7 +105,23 @@ public sealed class ProjectileSystem : SharedProjectileSystem
             || component.ProjectileSpent || component is { Weapon: null, OnlyCollideWhenShot: true })
             return;
 
-        var target = args.OtherEntity;
+        // Server-side swept segment hits handle ship weapons (fast projectiles can tunnel through thin fixtures each tick).
+        if (HasComp<ShipWeaponProjectileComponent>(uid))
+            return;
+
+        ProcessProjectileHit(uid, component, args.OtherEntity, args.OurBody.LinearVelocity, args.OtherFixture.CollisionLayer);
+    }
+
+    /// <summary>
+    /// Shared hit logic. Used for normal physics contacts and for swept (segment) hits to mitigate tunneling.
+    /// </summary>
+    public void ProcessProjectileHit(
+        EntityUid uid,
+        ProjectileComponent component,
+        EntityUid target,
+        Vector2 ourVelocity,
+        int otherFixtureCollisionLayer)
+    {
         // it's here so this check is only done once before possible hit
         var attemptEv = new ProjectileReflectAttemptEvent(uid, component, false);
         RaiseLocalEvent(target, ref attemptEv);
@@ -219,16 +237,18 @@ public sealed class ProjectileSystem : SharedProjectileSystem
         {
             _guns.PlayImpactSound(target, modifiedDamage, component.SoundHit, component.ForceSound);
 
-            if (!args.OurBody.LinearVelocity.IsLengthZero())
-                _sharedCameraRecoil.KickCamera(target, args.OurBody.LinearVelocity.Normalized());
+            if (!ourVelocity.IsLengthZero())
+                _sharedCameraRecoil.KickCamera(target, ourVelocity.Normalized());
         }
 
-        if ((component.DeleteOnCollide && component.ProjectileSpent) || (component.NoPenetrateMask & args.OtherFixture.CollisionLayer) != 0) // Goobstation - Make x-ray arrows not penetrate blob
+        if ((component.DeleteOnCollide && component.ProjectileSpent) || (component.NoPenetrateMask & otherFixtureCollisionLayer) != 0) // Goobstation - Make x-ray arrows not penetrate blob
             QueueDel(uid);
 
         if (component.ImpactEffect != null && TryComp(uid, out TransformComponent? xform))
         {
             RaiseNetworkEvent(new ImpactEffectEvent(component.ImpactEffect, GetNetCoordinates(xform.Coordinates)), Filter.Pvs(xform.Coordinates, entityMan: EntityManager));
         }
+
+        Dirty(uid, component);
     }
 }

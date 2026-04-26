@@ -49,21 +49,55 @@ public sealed partial class SpaceArtillerySystem : EntitySystem
 
     private void OnSignalReceived(EntityUid uid, SpaceArtilleryComponent component, ref SignalReceivedEvent args)
     {
-        if (!TryComp<DeviceLinkSinkComponent>(uid, out var source))
+        if (!TryComp<DeviceLinkSinkComponent>(uid, out _))
             return;
 
         if (args.Port != component.SpaceArtilleryFirePort)
+        {
             OnMalfunction(uid, component);
+            return;
+        }
 
         var hasBattery = TryComp<BatteryComponent>(uid, out var battery);
+        TryComp<ApcPowerReceiverComponent>(uid, out var apc);
 
-        if (!TryComp<ApcPowerReceiverComponent>(uid, out var apc) && !hasBattery)
+        if (apc == null && !hasBattery)
             return;
 
-        if (apc is { Powered: true } || battery?.CurrentCharge >= component.PowerUseActive)
-            TryFireArtillery(uid, Transform(uid), component);
-        else
+        if (!CanFireByPowerRules(uid, component, apc, battery))
+        {
             OnMalfunction(uid, component);
+            return;
+        }
+
+        TryFireArtillery(uid, Transform(uid), component);
+    }
+
+    /// <summary>
+    /// Energy weapons use battery draw (<see cref="SpaceArtilleryComponent.PowerUseActive"/>) as today.
+    /// Ballistic/missile/mining use physical ammo; only need vessel power or a battery (servos), not per-shot energy.
+    /// </summary>
+    private bool CanFireByPowerRules(
+        EntityUid uid,
+        SpaceArtilleryComponent component,
+        ApcPowerReceiverComponent? apc,
+        BatteryComponent? battery)
+    {
+        var powered = apc is { Powered: true };
+        var hasBattery = battery != null;
+
+        if (TryComp<ShipGunTypeComponent>(uid, out var gunType) && gunType.Type == ShipGunType.Energy)
+        {
+            if (powered)
+                return true;
+            if (!hasBattery)
+                return false;
+            if (component.PowerUseActive <= 0)
+                return true;
+            return battery!.CurrentCharge >= component.PowerUseActive;
+        }
+
+        return powered || hasBattery;
     }
 
 
@@ -132,7 +166,11 @@ public sealed partial class SpaceArtillerySystem : EntitySystem
             return;
         }
 
-        if (TryComp<BatteryComponent>(uid, out var battery))
+        // Extra draw on shot: energy-based ship guns only (ballistic/missile use BallisticAmmoProvider).
+        if (TryComp<ShipGunTypeComponent>(uid, out var gunType)
+            && gunType.Type == ShipGunType.Energy
+            && component.PowerUseActive > 0
+            && TryComp<BatteryComponent>(uid, out var battery))
         {
             _battery.UseCharge(uid, component.PowerUseActive, battery);
         }

@@ -1,0 +1,58 @@
+- type: entity
+  id: BaseMagazineShipKinetic
+  parent: BaseItem
+  abstract: true
+  components:
+  - type: BallisticAmmoProvider
+    mayTransfer: true
+  - type: Item
+    size: Large
+  - type: ContainerContainer
+    containers:
+      ballistic-ammo: !type:Container
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Ammunition/Magazine/Pistol/pistol_mag.rsi
+    layers:
+    - state: base
+      map: ["enum.GunVisualLayers.Base"]
+    - state: mag-1
+      map: ["enum.GunVisualLayers.Mag"]
+  - type: MagazineVisuals
+    magState: mag
+    steps: 6
+    zeroVisible: false
+  - type: Appearance
+
+# --- Machine gun magazines (30mm) ---
+
+- type: entity
+  id: MagazineShip30mm
+  name: ship drum 30mm
+  parent: BaseMagazineShipKinetic
+  components:
+  - type: Tag
+    tags:
+    - MagazineShip30mm
+  - type: BallisticAmmoProvider
+    proto: CartridgeShip35mm
+    whitelist:
+      tags:
+      - CartridgeShip35mm
+    capacity: 250
+
+# --- Autocannon magazines (57mm) ---
+
+- type: entity
+  id: MagazineShip57mm
+  name: ship drum 57mm
+  parent: BaseMagazineShipKinetic
+  components:
+  - type: Tag
+    tags:
+    - MagazineShip57mm
+  - type: BallisticAmmoProvider
+    proto: CartridgeShip57mm
+    whitelist:
+      tags:
+      - CartridgeShip57mm
+    capacity: 120
