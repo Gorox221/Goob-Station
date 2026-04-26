@@ -94,7 +94,7 @@
     color: "#19AFFF"
   - type: TravelDistanceDamage
     maxRampingDistance: 1230
-    minDamageFactor: 0.1
+    minDamageFactor: 0.2
   - type: Projectile
     ignoreWeaponGrid: true
     penetrate: true
