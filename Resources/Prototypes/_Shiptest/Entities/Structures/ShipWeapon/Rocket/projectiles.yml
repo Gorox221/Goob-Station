@@ -1,0 +1,53 @@
+- type: entity
+  id: ShipProjectileRocketShiptest
+  name: 127мм корабельная ракета
+  parent: BaseBulletTrigger
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Projectile
+    ignoreWeaponGrid: true
+    damage:
+      types:
+        Structural: 95
+        Blunt: 50
+  - type: Sprite
+    sprite: _Mono/Objects/SpaceArtillery/mini_rocket.rsi
+    layers:
+    - state: mini-rocket
+  - type: Ammo
+    muzzleFlash: null
+  - type: ShipWeaponProjectile
+  - type: RadarBlip
+    radarColor: "#E85D04"
+    scale: 1.2
+    requireNoGrid: true
+    shape: triangle
+  - type: TimedDespawn
+    lifetime: 6.5
+  - type: PointLight
+    radius: 3.2
+    color: "#FFB347"
+    energy: 0.55
+  - type: ExplodeOnTrigger
+  - type: Explosive
+    explosionType: Default
+    totalIntensity: 76
+    intensitySlope: 18
+    maxIntensity: 44
+  - type: GatheringProjectile
+  - type: TargetSeeking
+    acceleration: 120
+    detectionRange: 220
+    scanArc: 38
+    launchSpeed: 70
+    maxSpeed: 160
+  - type: Damageable
+    damageContainer: Inorganic
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 30
+      behaviors:
+      - !type:DoActsBehavior
+        acts: [ "Destruction" ]

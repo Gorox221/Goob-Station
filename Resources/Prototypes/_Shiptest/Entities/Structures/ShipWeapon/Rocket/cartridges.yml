@@ -1,0 +1,12 @@
+- type: entity
+  id: CartridgeShipRocket
+  name: 127мм корабельный ракетный выстрел
+  parent: BaseCartridgeShipKinetic
+  description: Ракета 127мм с кумулятивно-фугасной боеголовкой.
+  components:
+  - type: Tag
+    tags:
+    - Cartridge
+    - CartridgeShipRocket
+  - type: CartridgeAmmo
+    proto: ShipProjectileRocketShiptest
