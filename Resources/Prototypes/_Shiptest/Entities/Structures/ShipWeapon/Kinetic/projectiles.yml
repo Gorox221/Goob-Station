@@ -92,13 +92,16 @@
     - state: icon
   - type: PointLight
     color: "#19AFFF"
+  - type: TravelDistanceDamage
+    maxRampingDistance: 1230
+    minDamageFactor: 0.1
   - type: Projectile
     ignoreWeaponGrid: true
     penetrate: true
     penetrationThreshold: 0
     damage:
       types:
-        Structural: 300
-        Piercing: 50
+        Structural: 400
+        Piercing: 100
   - type: TimedDespawn
     lifetime: 5.7929

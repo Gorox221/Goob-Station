@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Numerics;
+using Content.Server._Shiptest.ShipWeapon;
 using Content.Server.Projectiles;
 using Content.Shared._Mono.SpaceArtillery;
 using Content.Shared.Projectiles;
@@ -28,6 +29,7 @@ public sealed class ShipWeaponProjectileSweptSystem : EntitySystem
     {
         base.Initialize();
         UpdatesAfter.Add(typeof(PhysicsSystem));
+        UpdatesAfter.Add(typeof(TravelDistanceDamageSystem));
         SubscribeLocalEvent<ShipWeaponProjectileComponent, EntityTerminatingEvent>(OnTerminating);
     }
 
