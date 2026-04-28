@@ -1,0 +1,104 @@
+- type: entity
+  parent: BaseMachineCircuitboard
+  id: ShieldEmitterT1MachineCircuitboard
+  name: генератор энергетического щита (машинная плата) (T1)
+  description: Печатная плата генератора энергетического щита T1. Уровень щита можно поменять при помощи отвертки.
+  components:
+  - type: Sprite
+    state: engineering
+  - type: MachineBoard
+    prototype: ShieldEmitterSmall
+    stackRequirements:
+      Manipulator: 12
+      Cable: 15
+      Glass: 15
+      Uranium: 30
+      Plasma: 30
+  - type: Construction
+    deconstructionTarget: null
+    graph: ShieldEmitterBoard
+    node: tier1
+
+- type: entity
+  parent: BaseMachineCircuitboard
+  id: ShieldEmitterT2MachineCircuitboard
+  name: генератор энергетического щита (машинная плата) (T2)
+  description: Печатная плата генератора энергетического щита T2. Уровень щита можно поменять при помощи отвертки.
+  components:
+  - type: Sprite
+    state: engineering
+  - type: MachineBoard
+    prototype: ShieldEmitterT2
+    stackRequirements:
+      Manipulator: 12
+      Cable: 15
+      Glass: 15
+      Uranium: 30
+      Plasma: 30
+  - type: Construction
+    deconstructionTarget: null
+    graph: ShieldEmitterBoard
+    node: tier2
+
+- type: entity
+  parent: BaseMachineCircuitboard
+  id: ShieldEmitterT3MachineCircuitboard
+  name: генератор энергетического щита (машинная плата) (T3)
+  description: Печатная плата генератора энергетического щита T3. Уровень щита можно поменять при помощи отвертки.
+  components:
+  - type: Sprite
+    state: engineering
+  - type: MachineBoard
+    prototype: ShieldEmitterT3
+    stackRequirements:
+      Manipulator: 12
+      Cable: 15
+      Glass: 15
+      Uranium: 30
+      Plasma: 30
+  - type: Construction
+    deconstructionTarget: null
+    graph: ShieldEmitterBoard
+    node: tier3
+
+- type: entity
+  parent: BaseMachineCircuitboard
+  id: ShieldEmitterT4MachineCircuitboard
+  name: генератор энергетического щита (машинная плата) (T4)
+  description: Печатная плата генератора энергетического щита T4. Уровень щита можно поменять при помощи отвертки.
+  components:
+  - type: Sprite
+    state: engineering
+  - type: MachineBoard
+    prototype: ShieldEmitterT4
+    stackRequirements:
+      Manipulator: 12
+      Cable: 15
+      Glass: 15
+      Uranium: 30
+      Plasma: 30
+  - type: Construction
+    deconstructionTarget: null
+    graph: ShieldEmitterBoard
+    node: tier4
+
+- type: entity
+  parent: BaseMachineCircuitboard
+  id: ShieldEmitterT5MachineCircuitboard
+  name: генератор энергетического щита (машинная плата) (T5)
+  description: Печатная плата генератора энергетического щита T5. Уровень щита можно поменять при помощи отвертки.
+  components:
+  - type: Sprite
+    state: engineering
+  - type: MachineBoard
+    prototype: ShieldEmitterT5
+    stackRequirements:
+      Manipulator: 12
+      Cable: 15
+      Glass: 15
+      Uranium: 30
+      Plasma: 30
+  - type: Construction
+    deconstructionTarget: null
+    graph: ShieldEmitterBoard
+    node: tier5

@@ -1,0 +1,125 @@
+- type: entity
+  id: ShieldEmitterBase
+  parent: [ BaseMachinePowered, ConstructibleMachine ]
+  abstract: true
+  name: deflector shield emitter
+  description: Energy shield projector. Place on a grid to generate a deflector when powered.
+  components:
+  - type: WiresPanel
+  - type: WiresVisuals
+  - type: Sprite
+    noRot: true
+    sprite: Structures/Machines/server.rsi
+    layers:
+    - state: server
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.5,-0.5,0.5,0.5"
+        mask:
+        - FullTileMask
+        layer:
+        - WallLayer
+        density: 200
+
+- type: entity
+  id: ShieldEmitterSmall
+  parent: ShieldEmitterBase
+  name: генератор энергетического щита первого уровня
+  description: Устройство на основе квантовых резонаторов проецирует стоячую электромагнитную волну, ионизирующую локальный вакуум. Поле отклоняет заряженные частицы и рассеивает лазерные лучи за счёт эффекта томсоновского рассеяния.
+  suffix: T1
+  components:
+  - type: Machine
+    board: ShieldEmitterT1MachineCircuitboard
+  - type: ApcPowerReceiver
+    powerLoad: 20000
+  - type: ShipShieldEmitter
+    damageLimit: 1000
+    healPerSecond: 20
+    damageExp: 1.0
+    powerDraw: 20000
+    unpoweredBonus: 2.5
+    damageOverloadTimePunishment: 60
+    shieldTexture: /Textures/_Crescent/ShipShields/shieldblue.png
+
+- type: entity
+  id: ShieldEmitterT2
+  parent: ShieldEmitterBase
+  name: генератор энергетического щита второго уровня
+  description: Устройство на основе квантовых резонаторов проецирует стоячую электромагнитную волну, ионизирующую локальный вакуум. Поле отклоняет заряженные частицы и рассеивает лазерные лучи за счёт эффекта томсоновского рассеяния.
+  suffix: T2
+  components:
+  - type: Machine
+    board: ShieldEmitterT2MachineCircuitboard
+  - type: ApcPowerReceiver
+    powerLoad: 40000
+  - type: ShipShieldEmitter
+    damageLimit: 2500
+    healPerSecond: 25
+    damageExp: 1.0
+    powerDraw: 40000
+    unpoweredBonus: 2.5
+    damageOverloadTimePunishment: 60
+    shieldTexture: /Textures/_Crescent/ShipShields/shieldpurple.png
+
+- type: entity
+  id: ShieldEmitterT3
+  parent: ShieldEmitterBase
+  name: генератор энергетического щита третьего уровня
+  description: Устройство на основе квантовых резонаторов проецирует стоячую электромагнитную волну, ионизирующую локальный вакуум. Поле отклоняет заряженные частицы и рассеивает лазерные лучи за счёт эффекта томсоновского рассеяния.
+  suffix: T3
+  components:
+  - type: Machine
+    board: ShieldEmitterT3MachineCircuitboard
+  - type: ApcPowerReceiver
+    powerLoad: 80000
+  - type: ShipShieldEmitter
+    damageLimit: 6000
+    healPerSecond: 25
+    damageExp: 1.0
+    powerDraw: 80000
+    unpoweredBonus: 2.5
+    damageOverloadTimePunishment: 60
+    shieldTexture: /Textures/_Crescent/ShipShields/shieldgreen.png
+
+- type: entity
+  id: ShieldEmitterT4
+  parent: ShieldEmitterBase
+  name: генератор энергетического щита четвертого уровня
+  description: Устройство на основе квантовых резонаторов проецирует стоячую электромагнитную волну, ионизирующую локальный вакуум. Поле отклоняет заряженные частицы и рассеивает лазерные лучи за счёт эффекта томсоновского рассеяния.
+  suffix: T4
+  components:
+  - type: Machine
+    board: ShieldEmitterT4MachineCircuitboard
+  - type: ApcPowerReceiver
+    powerLoad: 160000
+  - type: ShipShieldEmitter
+    damageLimit: 13000
+    healPerSecond: 25
+    damageExp: 1.0
+    powerDraw: 160000
+    unpoweredBonus: 2.5
+    damageOverloadTimePunishment: 60
+    shieldTexture: /Textures/_Crescent/ShipShields/shieldred.png
+
+- type: entity
+  id: ShieldEmitterT5
+  parent: ShieldEmitterBase
+  name: генератор энергетического щита пятого уровня
+  description: Устройство на основе квантовых резонаторов проецирует стоячую электромагнитную волну, ионизирующую локальный вакуум. Поле отклоняет заряженные частицы и рассеивает лазерные лучи за счёт эффекта томсоновского рассеяния.
+  suffix: T5
+  components:
+  - type: Machine
+    board: ShieldEmitterT5MachineCircuitboard
+  - type: ApcPowerReceiver
+    powerLoad: 320000
+  - type: ShipShieldEmitter
+    damageLimit: 25000
+    healPerSecond: 25
+    damageExp: 1.0
+    powerDraw: 320000
+    unpoweredBonus: 2.5
+    damageOverloadTimePunishment: 60
+    shieldTexture: /Textures/_Crescent/ShipShields/shieldyellow.png

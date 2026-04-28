@@ -74,6 +74,7 @@ using Content.Shared.Camera;
 using Content.Shared.Damage;
 using Content.Shared.Database;
 using Content.Goobstation.Maths.FixedPoint;
+using Content.Shared._Crescent.ShipShields;
 using Content.Shared._Mono.SpaceArtillery;
 using Content.Shared._Shitmed.Targeting;
 using Content.Shared.Projectiles;
@@ -84,6 +85,8 @@ namespace Content.Server.Projectiles;
 
 public sealed class ProjectileSystem : SharedProjectileSystem
 {
+    private const string ShipGaussBoltPrototype = "ShipGaussBolt";
+
     [Dependency] private readonly IAdminLogManager _adminLogger = default!;
     [Dependency] private readonly ColorFlashEffectSystem _color = default!;
     [Dependency] private readonly DamageableSystem _damageableSystem = default!;
@@ -229,7 +232,11 @@ public sealed class ProjectileSystem : SharedProjectileSystem
         if (component.Penetrate)
         {
             component.IgnoredEntities.Add(target);
-            component.ProjectileSpent = false; // Hardlight bow should be able to deal damage while piercing, no?
+            // Gauss bolts pierce matter but must not pass through crescent energy shields.
+            if (IsShipGaussBolt(uid) && HasComp<ShipShieldComponent>(target))
+                component.ProjectileSpent = true;
+            else
+                component.ProjectileSpent = false; // Hardlight bow should be able to deal damage while piercing, no?
         }
         // Goobstation end
 
@@ -251,4 +258,7 @@ public sealed class ProjectileSystem : SharedProjectileSystem
 
         Dirty(uid, component);
     }
+
+    private bool IsShipGaussBolt(EntityUid uid) =>
+        MetaData(uid).EntityPrototype?.ID == ShipGaussBoltPrototype;
 }

@@ -1,0 +1,8 @@
+- type: entity
+  id: ShipShield
+  name: energy shield
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Transform
+  - type: ShipShieldVisuals
+    shieldTexture: /Textures/_Crescent/ShipShields/shieldtex.png

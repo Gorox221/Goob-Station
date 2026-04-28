@@ -1,0 +1,63 @@
+- type: constructionGraph
+  id: ShieldEmitterBoard
+  start: tier1
+  graph:
+  - node: tier1
+    entity: ShieldEmitterT1MachineCircuitboard
+    edges:
+    - to: tier2
+      completed:
+      - !type:PlaySound
+        sound:
+          collection: Screwdriver
+      steps:
+      - tool: Screwing
+        doAfter: 2
+
+  - node: tier2
+    entity: ShieldEmitterT2MachineCircuitboard
+    edges:
+    - to: tier3
+      completed:
+      - !type:PlaySound
+        sound:
+          collection: Screwdriver
+      steps:
+      - tool: Screwing
+        doAfter: 2
+
+  - node: tier3
+    entity: ShieldEmitterT3MachineCircuitboard
+    edges:
+    - to: tier4
+      completed:
+      - !type:PlaySound
+        sound:
+          collection: Screwdriver
+      steps:
+      - tool: Screwing
+        doAfter: 2
+
+  - node: tier4
+    entity: ShieldEmitterT4MachineCircuitboard
+    edges:
+    - to: tier5
+      completed:
+      - !type:PlaySound
+        sound:
+          collection: Screwdriver
+      steps:
+      - tool: Screwing
+        doAfter: 2
+
+  - node: tier5
+    entity: ShieldEmitterT5MachineCircuitboard
+    edges:
+    - to: tier1
+      completed:
+      - !type:PlaySound
+        sound:
+          collection: Screwdriver
+      steps:
+      - tool: Screwing
+        doAfter: 2
